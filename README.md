@@ -133,8 +133,6 @@ node tools\verify-addon.mjs PackageSources\bgt-f27500-modernized C:\Projetos\bgt
 .\deploy-community.ps1
 ```
 
-O diário técnico completo de cada versão, em inglês, está em [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
-
 ### Arquivos derivados do avião do autor
 
 O pacote não inclui nenhum arquivo original do bgaurant: modelos, texturas, sons e sistemas vêm do pacote dele. Alguns arquivos são
@@ -287,8 +285,6 @@ node tools\verify-addon.mjs PackageSources\bgt-f27500-modernized C:\Projetos\bgt
 .\build-package.ps1        # with the simulator closed
 .\deploy-community.ps1
 ```
-
-The full engineering log of every version is in [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
 ### Files derived from the author's aircraft
 
