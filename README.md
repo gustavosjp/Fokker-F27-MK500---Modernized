@@ -13,17 +13,17 @@ WT21 (estilo Collins Pro Line, como no CJ4), o piloto automático e o FMS da Wor
 lista como um avião à parte ("Fokker F27500 Modernized …"). O F27 original continua intacto, e o cockpit original pode ser escolhido
 no próprio tablet.
 
-> **Status:** em desenvolvimento e testes. Este repositório contém o código-fonte e as ferramentas que geram o pacote a partir do
-> avião do autor instalado. O pacote pronto para instalar vai para a aba *Releases* depois que o autor aprovar os arquivos derivados
-> do avião dele (veja [Arquivos derivados](#arquivos-derivados-do-avião-do-autor)).
+> **Download:** o pacote pronto para instalar está em
+> [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) (`bgt-f27500-modernized-v11.0.zip`).
+> É uma versão de testes: relatos de problemas são bem-vindos em *Issues*.
 
 ### Requisitos
 
 - Microsoft Flight Simulator 2024.
 - **O F27-500 v2 do bgaurant instalado** (pacote `bgt-f27500-v2`). O mod usa os modelos, texturas, sons e sistemas dele e não
   inclui nenhum arquivo dele.
-- Opcional: as pinturas do Carlos Peroni (TAM PT-LAJ, Rio Sul PT-LZM e PT-LZN, SETE PS-SDW), para as variações Modernized dessas
-  pinturas.
+- Opcional, só compilando a partir do código: as pinturas do Carlos Peroni (TAM PT-LAJ, Rio Sul PT-LZM e PT-LZN, SETE PS-SDW), para
+  as variações Modernized dessas pinturas. Elas não vão na Release.
 - Opcional: GSX Pro. Com o GSX ativo, o pushback do tablet passa pelo menu do GSX.
 
 ### Melhorias
@@ -82,17 +82,19 @@ no próprio tablet.
 
 **Pinturas e pacote**
 
-27. Variações Modernized para as pinturas do Carlos Peroni: TAM PT-LAJ, Rio Sul PT-LZM e PT-LZN, SETE PS-SDW. Os pacotes dele
-    precisam estar instalados.
+27. Variações Modernized para as pinturas do Carlos Peroni: TAM PT-LAJ, Rio Sul PT-LZM e PT-LZN, SETE PS-SDW. São geradas ao
+    compilar a partir do código, com os pacotes dele instalados; não vão na Release.
 28. Pacote add-on separado (`bgt-f27500-modernized`) que herda o avião do autor, como fazem as pinturas. Não altera o F27 original.
 
 ![Tablet: puxar o avião / Tablet: pulling the aircraft](docs/img/tablet-pull.png)
 
-### Instalação (quando houver Release)
+### Instalação
 
 1. Instale o F27-500 v2 do bgaurant.
-2. Copie a pasta `bgt-f27500-modernized` para a pasta Community do MSFS 2024.
-3. No simulador, escolha "Fokker F27500 Modernized …" na lista de aviões.
+2. Baixe o `bgt-f27500-modernized-v11.0.zip` em
+   [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) e extraia a pasta
+   `bgt-f27500-modernized` dentro da pasta Community do MSFS 2024.
+3. No simulador, escolha "Fokker F27500 Modernized it80" na lista de aviões.
 
 ### Compilar a partir do código
 
@@ -115,14 +117,13 @@ O diário técnico completo de cada versão, em inglês, está em [docs/DEVELOPM
 
 ### Arquivos derivados do avião do autor
 
-O pacote não inclui nenhum arquivo do bgaurant. Alguns arquivos, porém, são gerados a partir dos dele e só serão publicados com a
-autorização dele:
+O pacote não inclui nenhum arquivo original do bgaurant: modelos, texturas, sons e sistemas vêm do pacote dele. Alguns arquivos são
+gerados a partir dos dele e vão no pacote com a autorização dele:
 
 - **WASM de sistemas:** cópia do módulo dele com os eventos de modo e de servo do piloto automático TAPIR e a regra GPU→escadas
   desligados.
 - **Modelos:** o JSON dos modelos 3D (a cena dele com as nossas peças) e o XML do exterior. A geometria continua lida do pacote dele.
 - **Configurações:** `panel.cfg` (os instrumentos dele mais os nossos), `model.CFG` e `systems.cfg` (o ganho do yaw damper vai a 1,0).
-- **Imagens:** as miniaturas do seletor de aviões e do pacote.
 
 ### Créditos e licenças
 
@@ -148,16 +149,17 @@ avionics (Collins Pro Line style, as in the CJ4), the Working Title autopilot an
 the aircraft list as a separate aircraft ("Fokker F27500 Modernized …"). The original F27 stays untouched, and the original cockpit
 can be picked from the tablet itself.
 
-> **Status:** in development and testing. This repository holds the source code and the tools that build the package from the
-> author's installed aircraft. The ready-to-install package goes to *Releases* once the author approves the files derived from his
-> aircraft (see [Derived files](#files-derived-from-the-authors-aircraft)).
+> **Download:** the ready-to-install package is in
+> [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) (`bgt-f27500-modernized-v11.0.zip`).
+> It is a test version: bug reports are welcome in *Issues*.
 
 ### Requirements
 
 - Microsoft Flight Simulator 2024.
 - **bgaurant's F27-500 v2 installed** (package `bgt-f27500-v2`). The mod uses his models, textures, sounds and systems and includes
   none of his files.
-- Optional: Carlos Peroni's liveries (TAM PT-LAJ, Rio Sul PT-LZM and PT-LZN, SETE PS-SDW), for their Modernized variations.
+- Optional, only when building from source: Carlos Peroni's liveries (TAM PT-LAJ, Rio Sul PT-LZM and PT-LZN, SETE PS-SDW), for their
+  Modernized variations. They are not in the Release.
 - Optional: GSX Pro. With GSX running, the tablet's pushback goes through the GSX menu.
 
 ### Improvements
@@ -215,16 +217,18 @@ can be picked from the tablet itself.
 
 **Liveries and package**
 
-27. Modernized variations for Carlos Peroni's liveries: TAM PT-LAJ, Rio Sul PT-LZM and PT-LZN, SETE PS-SDW. His packages must be
-    installed.
+27. Modernized variations for Carlos Peroni's liveries: TAM PT-LAJ, Rio Sul PT-LZM and PT-LZN, SETE PS-SDW. They are generated
+    when building from source with his packages installed; they are not in the Release.
 28. A separate add-on package (`bgt-f27500-modernized`) that inherits the author's aircraft, as liveries do. It does not change the
     original F27.
 
-### Installation (once there is a Release)
+### Installation
 
 1. Install bgaurant's F27-500 v2.
-2. Copy the `bgt-f27500-modernized` folder into the MSFS 2024 Community folder.
-3. In the simulator, pick "Fokker F27500 Modernized …" in the aircraft list.
+2. Download `bgt-f27500-modernized-v11.0.zip` from
+   [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) and extract the
+   `bgt-f27500-modernized` folder into the MSFS 2024 Community folder.
+3. In the simulator, pick "Fokker F27500 Modernized it80" in the aircraft list.
 
 ### Building from source
 
@@ -247,13 +251,12 @@ The full engineering log of every version is in [docs/DEVELOPMENT.md](docs/DEVEL
 
 ### Files derived from the author's aircraft
 
-The package includes none of bgaurant's files. Some files, however, are generated from his and will only be published with his
-permission:
+The package includes none of bgaurant's original files: models, textures, sounds and systems come from his package. Some files are
+generated from his and ship with his permission:
 
 - **Systems WASM:** a copy of his module with the TAPIR autopilot mode and servo events and the GPU→stairs rule turned off.
 - **Models:** the JSON of the 3D models (his scene with our parts) and the exterior XML. The geometry is still read from his package.
 - **Configuration:** `panel.cfg` (his instruments plus ours), `model.CFG` and `systems.cfg` (yaw damper gain set to 1.0).
-- **Images:** the aircraft selector and package thumbnails.
 
 ### Credits and licenses
 
