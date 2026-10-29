@@ -14,3 +14,4 @@ plugin-wt21/dist/
 __pycache__/
 *.pyc
 *.log
+release/
