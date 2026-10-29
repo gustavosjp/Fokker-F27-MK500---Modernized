@@ -16,6 +16,9 @@ import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmdirSy
 import { basename, dirname, join, relative } from 'node:path';
 
 const [, , pkgDir, authorDir, reportPath] = process.argv;
+// --public <dir>: a release build: none of his images either; our own thumbnails from <dir> (tools/make-addon-thumbnails.py)
+const publicAt = process.argv.indexOf('--public');
+const publicDir = publicAt > 0 ? process.argv[publicAt + 1] : null;
 const AUTHOR_SIM = 'Bgt_F27500v2';
 const authorSim = join(authorDir, 'SimObjects', 'Airplanes', AUTHOR_SIM);
 const simRoot = join(pkgDir, 'SimObjects', 'Airplanes');
@@ -97,7 +100,7 @@ const cfgText = readFileSync(join(sim, 'aircraft.cfg'), 'utf8');
 const textures = [...cfgText.matchAll(/^texture\s*=\s*"([^"]*)"/gm)].map((m) => m[1]);
 for (const p of hisCopies) {
   const folder = basename(dirname(p));
-  if (/[\\/]ContentInfo[\\/]/i.test(p) || (/^thumbnail/i.test(basename(p)) && textures.some((t) => folder.toLowerCase() === `texture.${t}`.toLowerCase()))) {
+  if (!publicDir && (/[\\/]ContentInfo[\\/]/i.test(p) || (/^thumbnail/i.test(basename(p)) && textures.some((t) => folder.toLowerCase() === `texture.${t}`.toLowerCase())))) {
     report.keptAuthorImages.push(rel(p));
     continue;
   }
@@ -110,6 +113,33 @@ const prune = (dir) => {
   if (readdirSync(dir).length === 0) rmdirSync(dir);
 };
 prune(pkgDir);
+
+// ---------- 3b. bridges: his XMLs, included from his package, include their siblings by plain names, which the sim resolves from OUR
+// model folder (where the root XML is). Add-on test 1: his F275bgt.xml (his BGT_* templates: switches, knobs, push buttons, warning
+// lights) was looked for here, and every control built on it was dead or stuck. A bridge is a file of ours with the same name that
+// only includes his, from his package.
+report.bridges = [];
+const crossPrefix = `${TO_AUTHOR}\\model\\`;
+const queue = readdirSync(join(sim, 'model')).filter((n) => /\.xml$/i.test(n))
+  .flatMap((n) => [...readFileSync(join(sim, 'model', n), 'utf8').matchAll(/RelativeFile="([^"]+)"/g)].map((m) => m[1]))
+  .filter((ref) => ref.startsWith(crossPrefix)).map((ref) => ref.slice(crossPrefix.length));
+for (const seen = new Set(); queue.length;) {
+  const name = queue.shift();
+  if (seen.has(name)) continue;
+  seen.add(name);
+  for (const [, sib] of readFileSync(join(authorSim, 'model', name), 'utf8').matchAll(/RelativeFile="([^"\\/]+)"/g)) {
+    queue.push(sib);
+    const bridge = join(sim, 'model', sib);
+    if (existsSync(bridge)) continue;
+    writeFileSync(bridge, ['<?xml version="1.0" encoding="utf-8"?>',
+      `<!-- Add-on bridge: the author's model XMLs, included from his package, include "${sib}" by a path the sim resolves from this`,
+      '     folder; this file of ours only sends that include on to his own file, in his package. -->',
+      '<ModelBehaviors>',
+      `\t<Include RelativeFile="${crossPrefix}${sib}"/>`,
+      '</ModelBehaviors>', ''].join('\r\n'));
+    report.bridges.push(rel(bridge));
+  }
+}
 
 // his checklist with its paths moved to our folder: his own, inherited, points to his folder where its pictures are
 if (existsSync(join(sim, 'Checklist'))) {
@@ -142,10 +172,14 @@ for (const t of [...new Set(textures)]) {
     if (!existsSync(join(authorSim, `texture.${t}`))) fail(`texture.${t}: neither a livery nor one of his texture folders`);
     // one of his liveries: his folder, his own chain for it (in his package), ours for the WT21 hardware, his base folder last
     chain = [`${TO_AUTHOR}\\texture.${t}`, ...authorChain(t).map((f) => f.replace(/^\.\.\\/, `${TO_AUTHOR}\\`)), '..\\texture.common', `${TO_AUTHOR}\\texture`];
-    for (const thumb of readdirSync(join(authorSim, `texture.${t}`)).filter((n) => /^thumbnail/i.test(n))) {
-      if (!existsSync(join(dir, thumb))) {
-        copyFileSync(join(authorSim, `texture.${t}`, thumb), join(dir, thumb));
-        report.keptAuthorImages.push(rel(join(dir, thumb)));
+    if (publicDir) {
+      for (const thumb of ['thumbnail.jpg', 'thumbnail_small.jpg']) copyFileSync(join(publicDir, thumb), join(dir, thumb));
+    } else {
+      for (const thumb of readdirSync(join(authorSim, `texture.${t}`)).filter((n) => /^thumbnail/i.test(n))) {
+        if (!existsSync(join(dir, thumb))) {
+          copyFileSync(join(authorSim, `texture.${t}`, thumb), join(dir, thumb));
+          report.keptAuthorImages.push(rel(join(dir, thumb)));
+        }
       }
     }
   }
@@ -153,6 +187,14 @@ for (const t of [...new Set(textures)]) {
   if (cfgFile && cfgFile !== 'texture.cfg') rmSync(join(dir, cfgFile));
   writeFileSync(join(dir, 'texture.cfg'), ['[fltsim]', ...chain.map((c, i) => `fallback.${i + 1}=${c}`)].join('\r\n') + '\r\n');
 }
+
+// a release: the package's thumbnail is ours too
+if (publicDir) {
+  const ci = join(pkgDir, 'ContentInfo', basename(pkgDir));
+  mkdirSync(ci, { recursive: true });
+  copyFileSync(join(publicDir, 'ContentInfo-Thumbnail.jpg'), join(ci, 'Thumbnail.jpg'));
+}
+report.public = !!publicDir;
 
 // ---------- 6. what is still derived from his work ----------
 const derived = [
@@ -169,4 +211,4 @@ for (const p of walk(pkgDir)) { report.files++; report.bytes += statSync(p).size
 writeFileSync(reportPath, JSON.stringify(report, null, 2));
 console.log(`add-on: ${report.files} files, ${(report.bytes / 1048576).toFixed(1)} MB; removed ${report.removedIdentical} files identical to the author's `
   + `(${(report.removedBytes / 1048576).toFixed(1)} MB); models split: ${report.models.map((m) => `${basename(m.gltf)} (ours ${(m.ourBytes / 1024).toFixed(0)} KB)`).join(', ')}; `
-  + `author's images kept: ${report.keptAuthorImages.length}; derived files: ${report.derived.length}`);
+  + `author's images kept: ${report.keptAuthorImages.length}; derived files: ${report.derived.length}; bridges: ${report.bridges.join(', ') || 'none'}`);

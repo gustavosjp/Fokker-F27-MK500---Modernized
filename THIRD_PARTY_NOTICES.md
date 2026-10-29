@@ -23,8 +23,7 @@ with the font as `plugin-wt21/tablet/DejaVu-LICENSE.txt`.
 ## Fokker F27-500 v2 — bgaurant
 
 Not included. The add-on requires the author's package (`bgt-f27500-v2`) and reads his models, textures, sounds and systems from it.
-The files generated from his are listed in the README ("Files derived from the author's aircraft") and are not published without
-his permission.
+The files generated from his are listed in the README ("Files derived from the author's aircraft") and ship with his permission.
 
 ## Liveries and 4K textures — Carlos Peroni
 

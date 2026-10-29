@@ -67,6 +67,16 @@ for (const mdir of readdirSync(sim).filter((d) => d.startsWith('model.'))) {
       const hit = resolveFrom(dirname(xmlPath), inc);
       // his behaviours come from his package: an include of a plain name would read a file of ours
       check(`${basename(xmlPath)}: ${tag} ${inc} (his package)`, hit.length > 0 && inc.includes(AUTHOR_SIM) && hit[0].startsWith(installedDir));
+      // his XML includes its siblings by plain names, resolved from OUR model folder (add-on test 1): a bridge of ours must send each
+      // on to his file
+      if (hit.length && hit[0].startsWith(installedDir)) {
+        for (const [, sib] of readFileSync(hit[0], 'utf8').matchAll(/RelativeFile="([^"\\/]+)"/g)) {
+          const bridge = join(dirname(xmlPath), sib);
+          const to = existsSync(bridge) ? (readFileSync(bridge, 'utf8').match(/RelativeFile="([^"]+)"/) ?? [])[1] : null;
+          const target = to ? resolveFrom(dirname(xmlPath), to) : [];
+          check(`${basename(hit[0])} includes ${sib}: our bridge sends it to his`, target.length > 0 && target[0].startsWith(installedDir) && basename(target[0]) === sib, to ?? 'no bridge');
+        }
+      }
     }
     for (const [, lod] of x.matchAll(/ModelFile="([^"]+)"/g)) {
       const gltfPath = join(dirname(xmlPath), lod);
@@ -123,10 +133,12 @@ check(`no copy of his files but the selector images (${images.length}: replace b
 // nor a file of his changed in place: the derived files have names of their own, but systems.cfg (the yaw damper gain); aircraft.cfg
 // and the variations' texture.cfg are ours by nature (our variations, our fallback chains), as in the liveries of his aircraft
 const DERIVED_IN_PLACE = ['systems.cfg'];
+// a bridge (tools/make-addon.mjs 3b) carries his file's name but only includes his file
+const isBridge = (p) => statSync(p).size < 1024 && readFileSync(p, 'utf8').includes(`RelativeFile="..\\..\\${AUTHOR_SIM}\\model\\${basename(p)}"`);
 const changed = walk(sim).filter((p) => {
   const r = relative(sim, p);
   return existsSync(join(pristineDir, 'SimObjects', 'Airplanes', AUTHOR_SIM, r)) && !/thumbnail/i.test(basename(p)) && !copies.includes(p)
-    && !DERIVED_IN_PLACE.includes(r) && r !== 'aircraft.cfg' && !/^texture\.[^\\/]+[\\/]texture\.cfg$/i.test(r);
+    && !DERIVED_IN_PLACE.includes(r) && r !== 'aircraft.cfg' && !/^texture\.[^\\/]+[\\/]texture\.cfg$/i.test(r) && !isBridge(p);
 });
 check(`no file of his changed in place but ${DERIVED_IN_PLACE.join(', ')}`, changed.length === 0, changed.map((p) => relative(sim, p)).join(','));
 const files = walk(pkgDir);
