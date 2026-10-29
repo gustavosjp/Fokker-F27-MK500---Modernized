@@ -22,8 +22,8 @@ no próprio tablet.
 - Microsoft Flight Simulator 2024.
 - **O F27-500 v2 do bgaurant instalado** (pacote `bgt-f27500-v2`). O mod usa os modelos, texturas, sons e sistemas dele e não
   inclui nenhum arquivo dele.
-- Opcional, só compilando a partir do código: as pinturas do Carlos Peroni (TAM PT-LAJ, Rio Sul PT-LZM e PT-LZN, SETE PS-SDW), para
-  as variações Modernized dessas pinturas. Elas não vão na Release.
+- Opcional: pinturas do F27-500 v2 de outros autores (qualquer uma que herde dele). O `Add-Liveries.ps1` reconhece as que **você** tem
+  instaladas e cria as variações Modernized delas (veja "Pinturas" abaixo). Nenhuma pintura vai na Release.
 - Opcional: GSX Pro. Com o GSX ativo, o pushback do tablet passa pelo menu do GSX.
 
 ### Melhorias
@@ -82,8 +82,8 @@ no próprio tablet.
 
 **Pinturas e pacote**
 
-27. Variações Modernized para as pinturas do Carlos Peroni: TAM PT-LAJ, Rio Sul PT-LZM e PT-LZN, SETE PS-SDW. São geradas ao
-    compilar a partir do código, com os pacotes dele instalados; não vão na Release.
+27. Variações Modernized para **as pinturas que você tem instaladas**, reconhecidas sozinhas pelo `Add-Liveries.ps1` (veja "Pinturas"
+    abaixo). Nada de pintura de ninguém vai na Release.
 28. Pacote add-on separado (`bgt-f27500-modernized`) que herda o avião do autor, como fazem as pinturas. Não altera o F27 original.
 
 ![Tablet: puxar o avião / Tablet: pulling the aircraft](docs/img/tablet-pull.png)
@@ -96,6 +96,22 @@ no próprio tablet.
    `bgt-f27500-modernized` dentro da pasta Community do MSFS 2024.
 3. No simulador, escolha "Fokker F27500 Modernized it80" na lista de aviões.
 
+### Pinturas
+
+O MSFS não procura pacotes sozinho: a lista de pinturas de um avião é escrita no `aircraft.cfg` dele. Por isso o `Add-Liveries.ps1` (na
+raiz do repositório e no zip da Release) faz isso **no seu computador**: varre a pasta Community atrás de toda pintura do F27-500 v2
+(qualquer pacote cujo `aircraft.cfg` herde de `..\Bgt_F27500v2` e tenha a pintura de fato), cria uma variação Modernized para cada uma e
+atualiza o `layout.json` do add-on. Das pinturas só são copiadas as duas miniaturas; elas continuam onde estão e precisam continuar instaladas.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\Add-Liveries.ps1          # cria/atualiza as variações
+powershell -ExecutionPolicy Bypass -File .\Add-Liveries.ps1 -List    # só mostra o que achou
+powershell -ExecutionPolicy Bypass -File .\Add-Liveries.ps1 -Remove  # volta o add-on ao estado original
+```
+
+Rode de novo depois de instalar ou remover uma pintura, e depois de atualizar o add-on. É seguro rodar quantas vezes quiser (a segunda
+não muda nada) e só mexe na pasta do próprio add-on. Feche e reabra o simulador para ver as variações.
+
 ### Compilar a partir do código
 
 São necessários o Windows, o MSFS 2024 e o SDK dele (fspackagetool), Node.js e Python 3 com Pillow e numpy. Também é preciso uma
@@ -105,7 +121,7 @@ Os scripts usam os caminhos da máquina de desenvolvimento (`C:\Projetos\…`), 
 ```powershell
 cd plugin-wt21; npm install; npm run build; cd ..
 .\tools\build-wt21.ps1
-.\scaffold.ps1 -Force -NoLiveries
+.\scaffold.ps1 -Force
 .\verify-package.ps1 -Source
 node tools\make-addon.mjs PackageSources\bgt-f27500-modernized C:\Projetos\bgt-f27500-v2 addon-report.json
 node tools\verify-addon.mjs PackageSources\bgt-f27500-modernized C:\Projetos\bgt-f27500-v2 "$env:LOCALAPPDATA\Packages\Microsoft.Limitless_8wekyb3d8bbwe\LocalCache\Packages\Community"
@@ -132,7 +148,7 @@ gerados a partir dos dele e vão no pacote com a autorização dele:
   ([msfs-avionics-mirror](https://github.com/microsoft/msfs-avionics-mirror)). Licença MIT com o adendo "uso somente no Microsoft
   Flight Simulator" ([licenses/WorkingTitle-Microsoft-LICENSE.txt](licenses/WorkingTitle-Microsoft-LICENSE.txt)). Usados sem
   alteração no código; só a pasta foi renomeada (`WT21v2` → `F27WT21`), e o MFD recebe o nosso plugin pela API de plugins do WT21.
-- **Pinturas e texturas 4K:** Carlos Peroni. Não estão incluídas.
+- **Pinturas e texturas 4K:** de cada autor (por exemplo Carlos Peroni, RE Liveries). Não estão incluídas: o `Add-Liveries.ps1` só aponta para as que você instalou.
 - **GSX Pro:** FSDreamTeam. Não está incluído; a integração usa as variáveis documentadas do GSX.
 - **Fonte DejaVu Sans:** [licenses/DejaVu-LICENSE.txt](licenses/DejaVu-LICENSE.txt).
 - **Código deste repositório:** licença MIT ([LICENSE](LICENSE)). Os componentes de terceiros mantêm as licenças deles
@@ -158,8 +174,8 @@ can be picked from the tablet itself.
 - Microsoft Flight Simulator 2024.
 - **bgaurant's F27-500 v2 installed** (package `bgt-f27500-v2`). The mod uses his models, textures, sounds and systems and includes
   none of his files.
-- Optional, only when building from source: Carlos Peroni's liveries (TAM PT-LAJ, Rio Sul PT-LZM and PT-LZN, SETE PS-SDW), for their
-  Modernized variations. They are not in the Release.
+- Optional: liveries of the F27-500 v2 by other authors (any that inherit from it). `Add-Liveries.ps1` finds the ones **you** have
+  installed and makes their Modernized variations (see "Liveries" below). No livery is in the Release.
 - Optional: GSX Pro. With GSX running, the tablet's pushback goes through the GSX menu.
 
 ### Improvements
@@ -217,8 +233,8 @@ can be picked from the tablet itself.
 
 **Liveries and package**
 
-27. Modernized variations for Carlos Peroni's liveries: TAM PT-LAJ, Rio Sul PT-LZM and PT-LZN, SETE PS-SDW. They are generated
-    when building from source with his packages installed; they are not in the Release.
+27. Modernized variations for **the liveries you have installed**, found by `Add-Liveries.ps1` on its own (see "Liveries" below).
+    Nobody's livery is in the Release.
 28. A separate add-on package (`bgt-f27500-modernized`) that inherits the author's aircraft, as liveries do. It does not change the
     original F27.
 
@@ -230,6 +246,23 @@ can be picked from the tablet itself.
    `bgt-f27500-modernized` folder into the MSFS 2024 Community folder.
 3. In the simulator, pick "Fokker F27500 Modernized it80" in the aircraft list.
 
+### Liveries
+
+MSFS does not look for packages by itself: an aircraft's paint list is written in its `aircraft.cfg`. So `Add-Liveries.ps1` (in the
+repository root and in the Release zip) does it **on your computer**: it scans the Community folder for every livery of the F27-500 v2
+(any package whose `aircraft.cfg` inherits from `..\Bgt_F27500v2` and really has the paint), makes one Modernized variation for each
+and brings the add-on's `layout.json` up to date. Only the liveries' two thumbnails are copied; the liveries stay where they are and must
+stay installed.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\Add-Liveries.ps1          # makes / refreshes the variations
+powershell -ExecutionPolicy Bypass -File .\Add-Liveries.ps1 -List    # only shows what it found
+powershell -ExecutionPolicy Bypass -File .\Add-Liveries.ps1 -Remove  # puts the add-on back as shipped
+```
+
+Run it again after you add or remove a livery, and after you update the add-on. It is safe to run any number of times (a second run
+changes nothing) and only touches the add-on's own folder. Restart the simulator to see the variations.
+
 ### Building from source
 
 You need Windows, MSFS 2024 and its SDK (fspackagetool), Node.js, and Python 3 with Pillow and numpy. You also need a copy of the
@@ -239,7 +272,7 @@ scripts use the development machine's paths (`C:\Projetos\…`), set at the top 
 ```powershell
 cd plugin-wt21; npm install; npm run build; cd ..
 .\tools\build-wt21.ps1
-.\scaffold.ps1 -Force -NoLiveries
+.\scaffold.ps1 -Force
 .\verify-package.ps1 -Source
 node tools\make-addon.mjs PackageSources\bgt-f27500-modernized C:\Projetos\bgt-f27500-v2 addon-report.json
 node tools\verify-addon.mjs PackageSources\bgt-f27500-modernized C:\Projetos\bgt-f27500-v2 "$env:LOCALAPPDATA\Packages\Microsoft.Limitless_8wekyb3d8bbwe\LocalCache\Packages\Community"
@@ -266,7 +299,7 @@ generated from his and ship with his permission:
   Microsoft Flight Simulator" ([licenses/WorkingTitle-Microsoft-LICENSE.txt](licenses/WorkingTitle-Microsoft-LICENSE.txt)). Used
   with no change to their code; only the folder is renamed (`WT21v2` → `F27WT21`), and the MFD gets our plugin through the WT21
   plugin API.
-- **Liveries and 4K textures:** Carlos Peroni. Not included.
+- **Liveries and 4K textures:** by each author (for example Carlos Peroni, RE Liveries). Not included: `Add-Liveries.ps1` only points to the ones you installed.
 - **GSX Pro:** FSDreamTeam. Not included; the integration uses GSX's documented variables.
 - **DejaVu Sans font:** [licenses/DejaVu-LICENSE.txt](licenses/DejaVu-LICENSE.txt).
 - **This repository's code:** MIT license ([LICENSE](LICENSE)). Third-party components keep their own licenses
