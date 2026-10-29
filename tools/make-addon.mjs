@@ -2,7 +2,7 @@
 // turns the full package source tree that scaffold.ps1 makes (and verify-package.ps1 checked) into the add-on form, in place. Only our
 // files stay; the author's come from his own package, installed beside it:
 //   * aircraft.cfg: [VARIATION] base_container = "..\Bgt_F27500v2" (as the liveries of his aircraft do) + our [FLTSIM.n] blocks;
-//     his .cfg files, sounds and panel are inherited
+//     his .cfg files are inherited, his sound folder is named in each block (MSFS 2024 did not inherit it for our variations)
 //   * every file identical to one of his is removed (models, textures, sounds, cfgs, Data/effects/...), except the thumbnails the
 //     aircraft selector shows (his images: listed in the report, to replace before publishing)
 //   * our models were his glTF + our parts in one .bin (his bytes first, ours appended): the .bin keeps our part only, the glTF reads
@@ -152,7 +152,17 @@ const cfgPath = join(sim, 'aircraft.cfg');
 const cfg = readFileSync(cfgPath, 'utf8');
 const first = cfg.search(/^\[FLTSIM\.\d+\]/m);
 if (first < 0) fail('aircraft.cfg: no [FLTSIM.n]');
-writeFileSync(cfgPath, ['[VERSION]', 'major = 1', 'minor = 0', '', '[VARIATION]', `base_container = "..\\${AUTHOR_SIM}"`, '', ''].join('\r\n') + cfg.slice(first));
+// The sound is NOT inherited: with sound = "" MSFS 2024 played his sounds wrong in our variations (they bring their own model and panel)
+// until each block named his sound folder itself, across packages, the way the liveries name his panel ("\..\..\Bgt_F27500v2\panel.gps").
+// sound = "x" is the folder sound.x ("" is sound); step 3 removed ours, being identical to his.
+const blocks = cfg.slice(first).replace(/^(\s*sound\s*=\s*)"([^"]*)"/gm, (line, key, v) => {
+  if (v.startsWith('\\..')) return line;
+  const folder = v ? `sound.${v}` : 'sound';
+  if (existsSync(join(sim, folder))) return line;
+  if (!existsSync(join(authorSim, folder))) fail(`aircraft.cfg: ${folder} is neither ours nor his`);
+  return `${key}"\\..\\..\\${AUTHOR_SIM}\\${folder}"`;
+});
+writeFileSync(cfgPath, ['[VERSION]', 'major = 1', 'minor = 0', '', '[VARIATION]', `base_container = "..\\${AUTHOR_SIM}"`, '', ''].join('\r\n') + blocks);
 
 // ---------- 5. texture folders: his textures through fallbacks, ours (WT21 hardware) in our texture.common ----------
 const authorChain = (t) => {

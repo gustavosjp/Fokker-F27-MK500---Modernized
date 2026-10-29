@@ -27,6 +27,7 @@ base_container = "..\Bgt_F27500v2"
 title = "Fokker F27500 Modernized it80" ; Variation name
 model = "wt21" ; model folder
 panel = "WT21" ; panel folder
+sound = "\..\..\Bgt_F27500v2\sound" ; sound folder
 texture = "it80" ; texture folder
 description = "Fokker F27-500, modernized." ; Variation description.
 ui_variation = "Air Inter 1980 - Modernized" ; e.g. World Air, IFR Panel
@@ -122,6 +123,8 @@ Check 'a livery block: texture, registration, airline, selector text, maker cred
 # MSFS 2024 makes one aircraft in the selector per icao_model + ui_createdby: a livery maker's name there made one aircraft per maker
 $createdBy = @([regex]::Matches($cfg, '(?m)^ui_createdby\s*=\s*"([^"]*)"') | ForEach-Object { $_.Groups[1].Value })
 Check 'every variation keeps the shipped ui_createdby (one aircraft in the selector)' ($createdBy.Count -eq 8 -and @($createdBy | Where-Object { $_ -cne 'Bgt (Modernized)' }).Count -eq 0) ($createdBy -join ' | ')
+# MSFS 2024 does not inherit the author's sound folder for our variations: the livery variations name it as the shipped one does
+Check 'every variation names the author''s sound folder, as the shipped one' (@($cfg -split "`r`n" | Where-Object { $_ -like 'sound = "\..\..\Bgt_F27500v2\sound"*' }).Count -eq 8)
 Check 'a livery block keeps the add-on''s own model and panel (the WT21 ones)' ($blockA -match 'model = "wt21"' -and $blockA -match 'panel = "WT21"')
 Check 'an airline missing in the livery''s cfg is taken from its selector text' ($cfg -match 'atc_airline = "Beta Lines"')
 Check 'a texture called like a shipped folder gets its own name' ($cfg -match 'texture = "it80-livery"' -and (Test-Path "$sim\texture.it80-livery\texture.cfg"))
