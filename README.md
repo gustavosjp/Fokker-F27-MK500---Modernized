@@ -14,8 +14,8 @@ lista como um avião à parte ("Fokker F27500 Modernized …"). O F27 original c
 no próprio tablet.
 
 > **Download:** o pacote pronto para instalar está em
-> [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) (`bgt-f27500-modernized-v11.0.zip`).
-> É uma versão de testes: relatos de problemas são bem-vindos em *Issues*.
+> [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) (`bgt-f27500-modernized-v11.4.zip`).
+> Relatos de problemas são bem-vindos em *Issues*.
 
 ### Requisitos
 
@@ -168,8 +168,8 @@ the aircraft list as a separate aircraft ("Fokker F27500 Modernized …"). The o
 can be picked from the tablet itself.
 
 > **Download:** the ready-to-install package is in
-> [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) (`bgt-f27500-modernized-v11.0.zip`).
-> It is a test version: bug reports are welcome in *Issues*.
+> [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) (`bgt-f27500-modernized-v11.4.zip`).
+> Bug reports are welcome in *Issues*.
 
 ### Requirements
 
