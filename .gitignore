@@ -1,0 +1,16 @@
+# Generated or copied from the author's aircraft: never published (his package is not ours to redistribute)
+_fallback/
+out/
+PackageSources/
+PackageDefinitions/
+_PackageInt/
+f27g1000.xml
+tools/panelmap/out/
+
+# Build outputs and dependencies
+node_modules/
+plugin-wt21/build/
+plugin-wt21/dist/
+__pycache__/
+*.pyc
+*.log

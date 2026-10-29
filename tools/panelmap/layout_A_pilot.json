@@ -1,0 +1,105 @@
+{
+  "dump": "C:/Projetos/f27-g1000/tools/panelmap/out/interior",
+  "eye": [
+    0.5,
+    0.807,
+    8.4545
+  ],
+  "look_at": [
+    0.05,
+    0.36,
+    9.17
+  ],
+  "fov_deg": 80,
+  "res": [
+    1800,
+    900
+  ],
+  "hide_prefixes": [
+    "x0_Struct_PanelMain"
+  ],
+  "hilite_prefixes": [
+    "x0_IAS_01",
+    "x0_VOR_01",
+    "x0_ADI_01",
+    "x0_HSI_01",
+    "x0_ALTI_01",
+    "x0_RALT_01",
+    "x0_Cadre_ias01",
+    "x0_Struct_Cadres.003",
+    "x0_IAS_02",
+    "x0_VOR_02",
+    "x0_ADI_02",
+    "x0_HSI_02",
+    "x0_ALTI_02",
+    "x0_RALT_02",
+    "x0_Cadre_ias02"
+  ],
+  "bezels": [
+    {
+      "name": "bezel_PFD1",
+      "center": [
+        0.4865,
+        0.3515,
+        9.16
+      ],
+      "size": [
+        0.325,
+        0.255
+      ],
+      "depth": 0.02
+    },
+    {
+      "name": "bezel_PFD2",
+      "center": [
+        -0.408,
+        0.3515,
+        9.16
+      ],
+      "size": [
+        0.325,
+        0.255
+      ],
+      "depth": 0.02
+    }
+  ],
+  "screens": [
+    {
+      "name": "scr_PFD1",
+      "center": [
+        0.4865,
+        0.3515,
+        9.1485
+      ],
+      "size": [
+        0.3,
+        0.225
+      ],
+      "color": [
+        0.1,
+        0.3,
+        0.75
+      ]
+    },
+    {
+      "name": "scr_PFD2",
+      "center": [
+        -0.408,
+        0.3515,
+        9.1485
+      ],
+      "size": [
+        0.3,
+        0.225
+      ],
+      "color": [
+        0.1,
+        0.3,
+        0.75
+      ]
+    }
+  ],
+  "ortho": false,
+  "ortho_scale": 1.9,
+  "clip_start": 0.02
+}

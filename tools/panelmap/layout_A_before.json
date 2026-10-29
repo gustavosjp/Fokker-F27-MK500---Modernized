@@ -1,0 +1,43 @@
+{
+  "dump": "C:/Projetos/f27-g1000/tools/panelmap/out/interior",
+  "eye": [
+    0,
+    0.4,
+    7
+  ],
+  "look_at": [
+    0,
+    0.4,
+    9.17
+  ],
+  "fov_deg": 62,
+  "res": [
+    1900,
+    760
+  ],
+  "hide_prefixes": [
+    "x0_Struct_PanelMain"
+  ],
+  "hilite_prefixes": [
+    "x0_IAS_01",
+    "x0_VOR_01",
+    "x0_ADI_01",
+    "x0_HSI_01",
+    "x0_ALTI_01",
+    "x0_RALT_01",
+    "x0_Cadre_ias01",
+    "x0_Struct_Cadres.003",
+    "x0_IAS_02",
+    "x0_VOR_02",
+    "x0_ADI_02",
+    "x0_HSI_02",
+    "x0_ALTI_02",
+    "x0_RALT_02",
+    "x0_Cadre_ias02"
+  ],
+  "bezels": [],
+  "screens": [],
+  "ortho": true,
+  "ortho_scale": 1.9,
+  "clip_start": 2
+}

@@ -1,0 +1,1967 @@
+{
+  "_comment": "Source of truth for the WT21 cockpit layout, v3 (2026-10-16, after the second in-sim test). Metres, glTF space: +x is the aircraft LEFT, y up, z forward. Read by make-g1000-interior.mjs (screen + plate quads), scaffold.ps1 (panel.cfg), expand-hide.mjs (analogue instruments hidden by visibility) and panelmap/make_preview_layout.mjs (offline Blender preview). The panel face is at z=9.17; frames and knobs of the removed instruments reach z=9.1513, so plates sit just in front of that.",
+  "_comment_plate": "Each unit = a screen quad (the WT21 page, standard 1024x768 / 1024x1024 texture) in front of a plate quad that hides the empty instrument pockets. The plate has a TEXTURED material (F27WT21_PLATE.PNG.DDS, solid dark grey, made by make-plate-dds.mjs): an untextured bezel did not render (test 1) and a dark margin drawn inside a bigger screen texture came out smaller/lower than computed (test 2).",
+  "_comment_boxes": "Test 6 (2026-10-16): seen from above (the user's eye), the 2 cm between a plate and the panel face showed the empty pockets above every plate. Plates and the FCP are therefore closed BOXES: four wall quads (the same quad mesh, rotated) run from the front face back to the panel face (panelFaceZ, or the unit's/panel's backZ). Walls use the plain plate material.",
+  "_comment_v8": "v8 (user, 2026-10-16: telas com moldura fina 3D, painel de AP e dois DCPs em 3D): real 3D hardware generated as new meshes in the interior's own vertex format (tools/hw3d.mjs, appended to a copy of the interior .bin), one atlas material (tools/make-hw-atlas.py). Displays: thin raised frame, glass recessed 3 mm; the pocket area around is a panel-coloured insert (closed box). FCP and DCPs: CJ4-grey modules with raised key caps and knobs (concentric for MENU/DATA). Controls: rect normalised to the module (x from the pilot's left, y from the top); 'height' = protrusion in metres.",
+  "plateZ": 9.1495,
+  "screenZ": 9.1485,
+  "panelFaceZ": 9.17,
+  "plateMaterial": "F27_WT21_plate",
+  "plateTexture": "F27WT21_PLATE.PNG.DDS",
+  "plateRgb": [
+    52,
+    54,
+    58
+  ],
+  "colors": {
+    "panel": [
+      70,
+      77,
+      98
+    ],
+    "module": [
+      78,
+      80,
+      86
+    ],
+    "frame": [
+      50,
+      52,
+      56
+    ],
+    "keySide": [
+      38,
+      38,
+      42
+    ],
+    "keyCap": [
+      24,
+      24,
+      27
+    ],
+    "knob": [
+      20,
+      20,
+      22
+    ],
+    "recess": [
+      6,
+      6,
+      8
+    ],
+    "lampOff": [
+      44,
+      62,
+      48
+    ],
+    "text": [
+      236,
+      236,
+      236
+    ],
+    "lampOn": [
+      120,
+      255,
+      150
+    ]
+  },
+  "units": [
+    {
+      "id": "PFD1",
+      "node": "WT21_PFD1_screen",
+      "material": "$gaugesF27wt21pfd1",
+      "vcockpit": 4,
+      "gauge": "F27WT21/PFD/WT21_PFD.html?Index=1",
+      "page": [
+        768,
+        1024
+      ],
+      "screen": {
+        "center": [
+          0.4935,
+          0.352
+        ],
+        "size": [
+          0.165,
+          0.22
+        ]
+      },
+      "plate": {
+        "center": [
+          0.523,
+          0.352
+        ],
+        "size": [
+          0.254,
+          0.252
+        ]
+      },
+      "frame": {
+        "border": 0.012,
+        "depth": 0.011,
+        "recess": 0.003,
+        "chamfer": 0.002
+      },
+      "screenZ": 9.1415
+    },
+    {
+      "id": "MFD1",
+      "node": "WT21_MFD1_screen",
+      "material": "$gaugesF27wt21mfd1",
+      "vcockpit": 5,
+      "gauge": "F27WT21/MFD/WT21_MFD.html?Index=1",
+      "page": [
+        768,
+        1024
+      ],
+      "screen": {
+        "center": [
+          0.2715,
+          0.352
+        ],
+        "size": [
+          0.165,
+          0.22
+        ]
+      },
+      "plate": {
+        "center": [
+          0.2705,
+          0.352
+        ],
+        "size": [
+          0.251,
+          0.252
+        ]
+      },
+      "controls": "mfd",
+      "index": 1,
+      "frame": {
+        "border": 0.012,
+        "depth": 0.011,
+        "recess": 0.003,
+        "chamfer": 0.002
+      },
+      "screenZ": 9.1415
+    },
+    {
+      "id": "FMC1",
+      "node": "WT21_FMC1_screen",
+      "material": "$gaugesF27wt21fmc",
+      "vcockpit": 6,
+      "gauge": "F27WT21/FMC/WT21_FMC.html?Index=1",
+      "page": [
+        1024,
+        1024
+      ],
+      "screen": {
+        "center": [
+          0,
+          0.0515
+        ],
+        "size": [
+          0.072,
+          0.072
+        ]
+      },
+      "plate": {
+        "center": [
+          0,
+          0
+        ],
+        "size": [
+          0.11,
+          0.185
+        ]
+      },
+      "plateZ": 9,
+      "screenZ": 8.9984,
+      "backZ": 9.1,
+      "frame": {
+        "border": 0.004,
+        "depth": 0.003,
+        "recess": 0.0015,
+        "chamfer": 0.001
+      },
+      "body": "module",
+      "controls": "cdu",
+      "index": 1,
+      "mount": {
+        "origin": [
+          0.137,
+          0.15,
+          8.7975
+        ],
+        "normal": [
+          0,
+          1,
+          0
+        ],
+        "up": [
+          0,
+          0,
+          1
+        ]
+      },
+      "_comment": "v9.1: CDU flat on the captain side of the pedestal (face up, top forward). Laid out like a panel unit (virtual face at plateZ, centre 0,0), then mount turns it to face `normal` with its top towards `up` and puts the face centre at `origin`."
+    }
+  ],
+  "panels": [
+    {
+      "id": "FCP",
+      "center": [
+        0,
+        0.5175
+      ],
+      "size": [
+        0.3,
+        0.055
+      ],
+      "z": 9.144,
+      "backZ": 9.165,
+      "controls": "fcp",
+      "index": 1,
+      "_comment": "CJ4-style flight control panel where the radio/CRS box was (x0_CRS_* hidden)."
+    },
+    {
+      "id": "DCP1",
+      "center": [
+        0.4465,
+        0.512
+      ],
+      "size": [
+        0.205,
+        0.062
+      ],
+      "z": 9.145,
+      "backZ": 9.17,
+      "controls": "dcp",
+      "index": 1,
+      "_comment": "Captain display control panel (CJ4 DCP functions) in place of the old autopilot annunciator strip above the PFD."
+    },
+    {
+      "id": "SERVOPA",
+      "center": [
+        0,
+        0
+      ],
+      "size": [
+        0.11,
+        0.1013
+      ],
+      "z": 9,
+      "backZ": 9.0123,
+      "controls": "servo_pa",
+      "index": 1,
+      "mount": {
+        "origin": [
+          -0.0016,
+          0.146,
+          8.82975
+        ],
+        "normal": [
+          0,
+          1,
+          0
+        ],
+        "up": [
+          0,
+          0,
+          1
+        ]
+      },
+      "_comment": "v9.3: dark block under the copied original servo-panel face (copies.servo_face), its face 0.5 mm below it."
+    }
+  ],
+  "_comment_controls": "Controls built 2026-10-16 from the approved mock-up. Each control is drawn into its panel's texture (tools\\make-control-textures.py) and gets an invisible click zone (a quad clone with the author's 'Collision' material, the technique his own click spots use) with an XML interaction: keys = ASOBO_GT_Interaction_LeftSingle_Code, knobs = ASOBO_GT_Interaction_WheelAndContinuousLeft (wheel / left-right halves) or _LeftSingle when they also push. rect = [u0,v0,u1,v1] in the panel quad, u from the pilot's left, v from the top. {i} = the unit's instrument index. WT21 events: DCP = H:Generic_Upr_<i>_..., CCP = H:Generic_Lwr_<i>_..., autopilot = standard K: events (intercepted by WT21APStateManager in the FMC).",
+  "controlSets": {
+    "fcp": {
+      "style": "3d",
+      "size": [
+        0.3,
+        0.055
+      ],
+      "face": "module",
+      "labels": [
+        {
+          "text": "CRS 1",
+          "x": 0.019,
+          "y": 0.047
+        },
+        {
+          "text": "HDG",
+          "x": 0.11,
+          "y": 0.047
+        },
+        {
+          "text": "ALT",
+          "x": 0.186,
+          "y": 0.047
+        },
+        {
+          "text": "VS",
+          "x": 0.208,
+          "y": 0.047
+        },
+        {
+          "text": "CRS 2",
+          "x": 0.275,
+          "y": 0.047
+        },
+        {
+          "text": "LATERAL",
+          "x": 0.0645,
+          "y": 0.034
+        },
+        {
+          "text": "VERTICAL",
+          "x": 0.148,
+          "y": 0.034
+        }
+      ],
+      "controls": [
+        {
+          "name": "CRS1",
+          "label": "CRS 1",
+          "type": "knob",
+          "rect": [
+            0.03,
+            0.2545,
+            0.0967,
+            0.6182
+          ],
+          "height": 0.012,
+          "cw": "(A:AUTOPILOT NAV SELECTED, number) 2 == if{ (>K:VOR2_OBI_INC) } els{ (>K:VOR1_OBI_INC) }",
+          "ccw": "(A:AUTOPILOT NAV SELECTED, number) 2 == if{ (>K:VOR2_OBI_DEC) } els{ (>K:VOR1_OBI_DEC) }"
+        },
+        {
+          "name": "NAV",
+          "label": "NAV",
+          "type": "key",
+          "rect": [
+            0.1192,
+            0.2682,
+            0.1608,
+            0.4591
+          ],
+          "height": 0.004,
+          "click": "(>K:AP_NAV1_HOLD)",
+          "light": true,
+          "lamp": "(A:AUTOPILOT NAV1 LOCK, Bool)"
+        },
+        {
+          "name": "HDG",
+          "label": "HDG",
+          "type": "key",
+          "rect": [
+            0.1692,
+            0.2682,
+            0.2108,
+            0.4591
+          ],
+          "height": 0.004,
+          "click": "(>K:AP_HDG_HOLD)",
+          "light": true,
+          "lamp": "(A:AUTOPILOT HEADING LOCK, Bool)"
+        },
+        {
+          "name": "APPR",
+          "label": "APPR",
+          "type": "key",
+          "rect": [
+            0.2192,
+            0.2682,
+            0.2608,
+            0.4591
+          ],
+          "height": 0.004,
+          "click": "(>K:AP_APR_HOLD)",
+          "light": true,
+          "lamp": "(A:AUTOPILOT APPROACH ACTIVE, Bool) (A:AUTOPILOT APPROACH HOLD, Bool) or"
+        },
+        {
+          "name": "BC",
+          "label": "BC",
+          "type": "key",
+          "rect": [
+            0.2692,
+            0.2682,
+            0.3108,
+            0.4591
+          ],
+          "height": 0.004,
+          "click": "(>K:AP_BC_HOLD)",
+          "light": true,
+          "lamp": "(A:AUTOPILOT BACKCOURSE HOLD, Bool)"
+        },
+        {
+          "name": "HDG_KNOB",
+          "label": "HDG",
+          "type": "knob",
+          "rect": [
+            0.3333,
+            0.2545,
+            0.4,
+            0.6182
+          ],
+          "height": 0.012,
+          "cw": "(>K:HEADING_BUG_INC)",
+          "ccw": "(>K:HEADING_BUG_DEC)",
+          "push": "(A:PLANE HEADING DEGREES MAGNETIC, degrees) (>K:HEADING_BUG_SET)"
+        },
+        {
+          "name": "FLC",
+          "label": "FLC",
+          "type": "key",
+          "rect": [
+            0.4225,
+            0.2682,
+            0.4642,
+            0.4591
+          ],
+          "height": 0.004,
+          "click": "(>K:FLIGHT_LEVEL_CHANGE)",
+          "light": true,
+          "lamp": "(A:AUTOPILOT FLIGHT LEVEL CHANGE, Bool)"
+        },
+        {
+          "name": "VS",
+          "label": "VS",
+          "type": "key",
+          "rect": [
+            0.4725,
+            0.2682,
+            0.5142,
+            0.4591
+          ],
+          "height": 0.004,
+          "click": "(>K:AP_PANEL_VS_HOLD)",
+          "light": true,
+          "lamp": "(A:AUTOPILOT VERTICAL HOLD, Bool)"
+        },
+        {
+          "name": "ALT",
+          "label": "ALT",
+          "type": "key",
+          "rect": [
+            0.5225,
+            0.2682,
+            0.5642,
+            0.4591
+          ],
+          "height": 0.004,
+          "click": "(>K:AP_ALT_HOLD)",
+          "light": true,
+          "lamp": "(A:AUTOPILOT ALTITUDE LOCK, Bool)"
+        },
+        {
+          "name": "ALT_KNOB",
+          "label": "ALT",
+          "type": "knob",
+          "rect": [
+            0.5867,
+            0.2545,
+            0.6533,
+            0.6182
+          ],
+          "height": 0.012,
+          "cw": "(>K:AP_ALT_VAR_INC)",
+          "ccw": "(>K:AP_ALT_VAR_DEC)"
+        },
+        {
+          "name": "VS_UP",
+          "label": "UP",
+          "type": "key",
+          "rect": [
+            0.6725,
+            0.1864,
+            0.7142,
+            0.3591
+          ],
+          "height": 0.004,
+          "click": "(>K:AP_VS_VAR_INC)"
+        },
+        {
+          "name": "VS_DN",
+          "label": "DN",
+          "type": "key",
+          "rect": [
+            0.6725,
+            0.4955,
+            0.7142,
+            0.6682
+          ],
+          "height": 0.004,
+          "click": "(>K:AP_VS_VAR_DEC)"
+        },
+        {
+          "name": "AP",
+          "label": "AP",
+          "type": "key",
+          "rect": [
+            0.7325,
+            0.1864,
+            0.7742,
+            0.3591
+          ],
+          "height": 0.004,
+          "click": "(>K:AP_MASTER)",
+          "light": true,
+          "lamp": "(A:AUTOPILOT MASTER, Bool)"
+        },
+        {
+          "name": "YD",
+          "label": "YD",
+          "type": "key",
+          "rect": [
+            0.7325,
+            0.4955,
+            0.7742,
+            0.6682
+          ],
+          "height": 0.004,
+          "click": "(>K:YAW_DAMPER_TOGGLE)",
+          "light": true,
+          "lamp": "(A:AUTOPILOT YAW DAMPER, Bool)"
+        },
+        {
+          "name": "FD",
+          "label": "FD",
+          "type": "key",
+          "rect": [
+            0.7925,
+            0.1864,
+            0.8342,
+            0.3591
+          ],
+          "height": 0.004,
+          "click": "(>K:TOGGLE_FLIGHT_DIRECTOR)"
+        },
+        {
+          "name": "CRS2",
+          "label": "CRS 2",
+          "type": "knob",
+          "rect": [
+            0.8833,
+            0.2545,
+            0.95,
+            0.6182
+          ],
+          "height": 0.012,
+          "cw": "(>K:VOR2_OBI_INC)",
+          "ccw": "(>K:VOR2_OBI_DEC)"
+        }
+      ]
+    },
+    "dcp": {
+      "style": "3d",
+      "size": [
+        0.205,
+        0.062
+      ],
+      "face": "module",
+      "labels": [
+        {
+          "text": "DISPLAY CONTROL",
+          "x": 0.05,
+          "y": 0.05
+        },
+        {
+          "text": "MENU ADV",
+          "x": 0.125,
+          "y": 0.055
+        },
+        {
+          "text": "DATA",
+          "x": 0.125,
+          "y": 0.0195
+        },
+        {
+          "text": "RANGE",
+          "x": 0.155,
+          "y": 0.055
+        },
+        {
+          "text": "TILT",
+          "x": 0.155,
+          "y": 0.0195
+        },
+        {
+          "text": "BARO",
+          "x": 0.185,
+          "y": 0.055
+        },
+        {
+          "text": "PUSH STD",
+          "x": 0.185,
+          "y": 0.0195
+        }
+      ],
+      "controls": [
+        {
+          "name": "NAV",
+          "label": "NAV",
+          "type": "key",
+          "rect": [
+            0.0451,
+            0.1411,
+            0.1207,
+            0.3105
+          ],
+          "height": 0.004,
+          "click": "(>H:Generic_Upr_{i}_Push_NAV)"
+        },
+        {
+          "name": "FRMT",
+          "label": "FRMT",
+          "type": "key",
+          "rect": [
+            0.1402,
+            0.1411,
+            0.2159,
+            0.3105
+          ],
+          "height": 0.004,
+          "click": "(>H:Generic_Upr_{i}_Push_FRMT)"
+        },
+        {
+          "name": "TFC",
+          "label": "TFC",
+          "type": "key",
+          "rect": [
+            0.2354,
+            0.1411,
+            0.311,
+            0.3105
+          ],
+          "height": 0.004,
+          "click": "(>H:Generic_Upr_{i}_Push_TFC)"
+        },
+        {
+          "name": "TERR_WX",
+          "label": "TERR WX",
+          "type": "key",
+          "rect": [
+            0.3305,
+            0.1411,
+            0.4061,
+            0.3105
+          ],
+          "height": 0.004,
+          "click": "(>H:Generic_Upr_{i}_Push_TERR_WX)"
+        },
+        {
+          "name": "ESC",
+          "label": "ESC",
+          "type": "key",
+          "rect": [
+            0.4256,
+            0.1411,
+            0.5012,
+            0.3105
+          ],
+          "height": 0.004,
+          "click": "(>H:Generic_Upr_{i}_Push_ESC)"
+        },
+        {
+          "name": "PFD_MENU",
+          "label": "PFD MENU",
+          "type": "key",
+          "rect": [
+            0.0451,
+            0.4153,
+            0.1207,
+            0.5847
+          ],
+          "height": 0.004,
+          "click": "(>H:Generic_Upr_{i}_Push_PFD_MENU)"
+        },
+        {
+          "name": "REFS",
+          "label": "REFS",
+          "type": "key",
+          "rect": [
+            0.1402,
+            0.4153,
+            0.2159,
+            0.5847
+          ],
+          "height": 0.004,
+          "click": "(>H:Generic_Upr_{i}_Push_REFS_MENU)"
+        },
+        {
+          "name": "ET",
+          "label": "ET",
+          "type": "key",
+          "rect": [
+            0.2354,
+            0.4153,
+            0.311,
+            0.5847
+          ],
+          "height": 0.004,
+          "click": "(>H:Generic_Upr_{i}_Push_ET)"
+        },
+        {
+          "name": "MENU_ADV",
+          "label": "MENU",
+          "type": "knob",
+          "rect": [
+            0.5585,
+            0.4113,
+            0.661,
+            0.75
+          ],
+          "height": 0.012,
+          "cw": "(>H:Generic_Upr_{i}_MENU_ADV_INC)",
+          "ccw": "(>H:Generic_Upr_{i}_MENU_ADV_DEC)",
+          "concentric": "outer"
+        },
+        {
+          "name": "DATA",
+          "label": "DATA",
+          "type": "knob",
+          "rect": [
+            0.5585,
+            0.4113,
+            0.661,
+            0.75
+          ],
+          "height": 0.012,
+          "cw": "(>H:Generic_Upr_{i}_DATA_INC)",
+          "ccw": "(>H:Generic_Upr_{i}_DATA_DEC)",
+          "push": "(>H:Generic_Upr_{i}_DATA_PUSH)",
+          "concentric": "inner"
+        },
+        {
+          "name": "RANGE",
+          "label": "RANGE",
+          "type": "knob",
+          "rect": [
+            0.7049,
+            0.4113,
+            0.8073,
+            0.75
+          ],
+          "height": 0.012,
+          "cw": "(>H:Generic_Upr_{i}_RANGE_INC)",
+          "ccw": "(>H:Generic_Upr_{i}_RANGE_DEC)",
+          "concentric": "outer"
+        },
+        {
+          "name": "TILT",
+          "label": "TILT",
+          "type": "knob",
+          "rect": [
+            0.7049,
+            0.4113,
+            0.8073,
+            0.75
+          ],
+          "height": 0.012,
+          "cw": "(>H:Generic_Upr_{i}_TILT_INC)",
+          "ccw": "(>H:Generic_Upr_{i}_TILT_DEC)",
+          "push": "(>H:Generic_Upr_{i}_TILT_PUSH)",
+          "concentric": "inner"
+        },
+        {
+          "name": "BARO",
+          "label": "BARO",
+          "type": "knob",
+          "rect": [
+            0.8561,
+            0.4274,
+            0.9488,
+            0.7339
+          ],
+          "height": 0.012,
+          "cw": "{i} (>K:KOHLSMAN_INC)",
+          "ccw": "{i} (>K:KOHLSMAN_DEC)",
+          "push": "(>K:BAROMETRIC)"
+        }
+      ]
+    },
+    "mfd": {
+      "style": "3d",
+      "size": [
+        0.251,
+        0.252
+      ],
+      "face": "insert",
+      "controls": [
+        {
+          "name": "UPR_MENU",
+          "label": "UPR MENU",
+          "type": "key",
+          "rect": [
+            0.012,
+            0.0476,
+            0.0956,
+            0.0913
+          ],
+          "height": 0.004,
+          "click": "(>H:Generic_Lwr_{i}_Push_UPR_MENU)"
+        },
+        {
+          "name": "LWR_MENU",
+          "label": "LWR MENU",
+          "type": "key",
+          "rect": [
+            0.012,
+            0.123,
+            0.0956,
+            0.1667
+          ],
+          "height": 0.004,
+          "click": "(>H:Generic_Lwr_{i}_Push_LWR_MENU)"
+        },
+        {
+          "name": "ENG",
+          "label": "ENG",
+          "type": "key",
+          "rect": [
+            0.012,
+            0.1984,
+            0.0956,
+            0.2421
+          ],
+          "height": 0.004,
+          "click": "(>H:Generic_Lwr_{i}_Push_ENG)"
+        },
+        {
+          "name": "SYS",
+          "label": "SYS",
+          "type": "key",
+          "rect": [
+            0.012,
+            0.2738,
+            0.0956,
+            0.3175
+          ],
+          "height": 0.004,
+          "click": "(>H:Generic_Lwr_{i}_Push_SYS)"
+        },
+        {
+          "name": "ESC",
+          "label": "ESC",
+          "type": "key",
+          "rect": [
+            0.012,
+            0.3492,
+            0.0956,
+            0.3929
+          ],
+          "height": 0.004,
+          "click": "(>H:Generic_Lwr_{i}_Push_ESC)"
+        },
+        {
+          "name": "MENU_ADV",
+          "label": "MENU",
+          "type": "knob",
+          "rect": [
+            0.0179,
+            0.4524,
+            0.0896,
+            0.5238
+          ],
+          "height": 0.012,
+          "cw": "(>H:Generic_Lwr_{i}_Push_MENU_ADV_INC)",
+          "ccw": "(>H:Generic_Lwr_{i}_Push_MENU_ADV_DEC)"
+        },
+        {
+          "name": "CAS",
+          "label": "CAS",
+          "type": "key",
+          "rect": [
+            0.8964,
+            0.0476,
+            0.9801,
+            0.0913
+          ],
+          "height": 0.004,
+          "click": "(>H:Generic_Lwr_{i}_Push_CAS_PAGE)"
+        },
+        {
+          "name": "NAV_DATA",
+          "label": "NAV DATA",
+          "type": "key",
+          "rect": [
+            0.8964,
+            0.123,
+            0.9801,
+            0.1667
+          ],
+          "height": 0.004,
+          "click": "(>H:Generic_Lwr_{i}_Push_NAV_DATA)"
+        },
+        {
+          "name": "TFC",
+          "label": "TFC",
+          "type": "key",
+          "rect": [
+            0.8964,
+            0.1984,
+            0.9801,
+            0.2421
+          ],
+          "height": 0.004,
+          "click": "(>H:Generic_Lwr_{i}_Push_TFC)"
+        },
+        {
+          "name": "TERR_WX",
+          "label": "TERR WX",
+          "type": "key",
+          "rect": [
+            0.8964,
+            0.2738,
+            0.9801,
+            0.3175
+          ],
+          "height": 0.004,
+          "click": "(>H:Generic_Lwr_{i}_Push_TERR_WX)"
+        },
+        {
+          "name": "ZOOM",
+          "label": "ZOOM",
+          "type": "knob",
+          "rect": [
+            0.9024,
+            0.3849,
+            0.9741,
+            0.4563
+          ],
+          "height": 0.012,
+          "cw": "(>H:Generic_Lwr_{i}_Push_ZOOM_INC)",
+          "ccw": "(>H:Generic_Lwr_{i}_Push_ZOOM_DEC)"
+        },
+        {
+          "name": "DATA",
+          "label": "DATA",
+          "type": "knob",
+          "rect": [
+            0.9024,
+            0.4921,
+            0.9741,
+            0.5635
+          ],
+          "height": 0.012,
+          "cw": "(>H:Generic_Lwr_{i}_Push_DATA_INC)",
+          "ccw": "(>H:Generic_Lwr_{i}_Push_DATA_DEC)",
+          "push": "(>H:Generic_Lwr_{i}_Push_DATA_PUSH)"
+        }
+      ]
+    },
+    "cdu": {
+      "style": "3d",
+      "size": [
+        0.11,
+        0.185
+      ],
+      "face": "insert",
+      "controls": [
+        {
+          "name": "L1",
+          "label": "",
+          "type": "key",
+          "rect": [
+            0.0455,
+            0.0996,
+            0.1091,
+            0.1213
+          ],
+          "height": 0.0015,
+          "click": "(>H:WT21_FMC_{i}_BTN_L1)"
+        },
+        {
+          "name": "R1",
+          "label": "",
+          "type": "key",
+          "rect": [
+            0.8909,
+            0.0996,
+            0.9545,
+            0.1213
+          ],
+          "height": 0.0015,
+          "click": "(>H:WT21_FMC_{i}_BTN_R1)"
+        },
+        {
+          "name": "L2",
+          "label": "",
+          "type": "key",
+          "rect": [
+            0.0455,
+            0.146,
+            0.1091,
+            0.1676
+          ],
+          "height": 0.0015,
+          "click": "(>H:WT21_FMC_{i}_BTN_L2)"
+        },
+        {
+          "name": "R2",
+          "label": "",
+          "type": "key",
+          "rect": [
+            0.8909,
+            0.146,
+            0.9545,
+            0.1676
+          ],
+          "height": 0.0015,
+          "click": "(>H:WT21_FMC_{i}_BTN_R2)"
+        },
+        {
+          "name": "L3",
+          "label": "",
+          "type": "key",
+          "rect": [
+            0.0455,
+            0.1924,
+            0.1091,
+            0.214
+          ],
+          "height": 0.0015,
+          "click": "(>H:WT21_FMC_{i}_BTN_L3)"
+        },
+        {
+          "name": "R3",
+          "label": "",
+          "type": "key",
+          "rect": [
+            0.8909,
+            0.1924,
+            0.9545,
+            0.214
+          ],
+          "height": 0.0015,
+          "click": "(>H:WT21_FMC_{i}_BTN_R3)"
+        },
+        {
+          "name": "L4",
+          "label": "",
+          "type": "key",
+          "rect": [
+            0.0455,
+            0.2387,
+            0.1091,
+            0.2604
+          ],
+          "height": 0.0015,
+          "click": "(>H:WT21_FMC_{i}_BTN_L4)"
+        },
+        {
+          "name": "R4",
+          "label": "",
+          "type": "key",
+          "rect": [
+            0.8909,
+            0.2387,
+            0.9545,
+            0.2604
+          ],
+          "height": 0.0015,
+          "click": "(>H:WT21_FMC_{i}_BTN_R4)"
+        },
+        {
+          "name": "L5",
+          "label": "",
+          "type": "key",
+          "rect": [
+            0.0455,
+            0.2851,
+            0.1091,
+            0.3067
+          ],
+          "height": 0.0015,
+          "click": "(>H:WT21_FMC_{i}_BTN_L5)"
+        },
+        {
+          "name": "R5",
+          "label": "",
+          "type": "key",
+          "rect": [
+            0.8909,
+            0.2851,
+            0.9545,
+            0.3067
+          ],
+          "height": 0.0015,
+          "click": "(>H:WT21_FMC_{i}_BTN_R5)"
+        },
+        {
+          "name": "L6",
+          "label": "",
+          "type": "key",
+          "rect": [
+            0.0455,
+            0.3315,
+            0.1091,
+            0.3531
+          ],
+          "height": 0.0015,
+          "click": "(>H:WT21_FMC_{i}_BTN_L6)"
+        },
+        {
+          "name": "R6",
+          "label": "",
+          "type": "key",
+          "rect": [
+            0.8909,
+            0.3315,
+            0.9545,
+            0.3531
+          ],
+          "height": 0.0015,
+          "click": "(>H:WT21_FMC_{i}_BTN_R6)"
+        },
+        {
+          "name": "IDX",
+          "label": "IDX",
+          "type": "key",
+          "rect": [
+            0.0273,
+            0.4568,
+            0.1545,
+            0.4838
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_IDX)"
+        },
+        {
+          "name": "FPLN",
+          "label": "FPLN",
+          "type": "key",
+          "rect": [
+            0.1909,
+            0.4568,
+            0.3182,
+            0.4838
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_FPLN)"
+        },
+        {
+          "name": "LEGS",
+          "label": "LEGS",
+          "type": "key",
+          "rect": [
+            0.3546,
+            0.4568,
+            0.4818,
+            0.4838
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_LEGS)"
+        },
+        {
+          "name": "DEPARR",
+          "label": "DEP ARR",
+          "type": "key",
+          "rect": [
+            0.5182,
+            0.4568,
+            0.6454,
+            0.4838
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_DEPARR)"
+        },
+        {
+          "name": "PERF",
+          "label": "PERF",
+          "type": "key",
+          "rect": [
+            0.6818,
+            0.4568,
+            0.8091,
+            0.4838
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_PERF)"
+        },
+        {
+          "name": "DSPL_MENU",
+          "label": "DSPL MENU",
+          "type": "key",
+          "rect": [
+            0.8455,
+            0.4568,
+            0.9727,
+            0.4838
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_DSPL_MENU)"
+        },
+        {
+          "name": "MFD_ADV",
+          "label": "MFD ADV",
+          "type": "key",
+          "rect": [
+            0.0273,
+            0.5,
+            0.1545,
+            0.527
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_MFD_ADV)"
+        },
+        {
+          "name": "MFD_DATA",
+          "label": "MFD DATA",
+          "type": "key",
+          "rect": [
+            0.1909,
+            0.5,
+            0.3182,
+            0.527
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_MFD_DATA)"
+        },
+        {
+          "name": "TUN",
+          "label": "TUN",
+          "type": "key",
+          "rect": [
+            0.3546,
+            0.5,
+            0.4818,
+            0.527
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_TUN)"
+        },
+        {
+          "name": "DIR",
+          "label": "DIR",
+          "type": "key",
+          "rect": [
+            0.5182,
+            0.5,
+            0.6454,
+            0.527
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_DIR)"
+        },
+        {
+          "name": "MSG",
+          "label": "MSG",
+          "type": "key",
+          "rect": [
+            0.6818,
+            0.5,
+            0.8091,
+            0.527
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_MSG)",
+          "light": true,
+          "lamp": "(L:WT21_DISPLAY_MSG, number) -1 >"
+        },
+        {
+          "name": "EXEC",
+          "label": "EXEC",
+          "type": "key",
+          "rect": [
+            0.8455,
+            0.5,
+            0.9727,
+            0.527
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_EXEC)"
+        },
+        {
+          "name": "1",
+          "label": "1",
+          "type": "key",
+          "rect": [
+            0.0364,
+            0.554,
+            0.1091,
+            0.5919
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_1)"
+        },
+        {
+          "name": "2",
+          "label": "2",
+          "type": "key",
+          "rect": [
+            0.15,
+            0.554,
+            0.2227,
+            0.5919
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_2)"
+        },
+        {
+          "name": "3",
+          "label": "3",
+          "type": "key",
+          "rect": [
+            0.2636,
+            0.554,
+            0.3364,
+            0.5919
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_3)"
+        },
+        {
+          "name": "4",
+          "label": "4",
+          "type": "key",
+          "rect": [
+            0.0364,
+            0.6243,
+            0.1091,
+            0.6622
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_4)"
+        },
+        {
+          "name": "5",
+          "label": "5",
+          "type": "key",
+          "rect": [
+            0.15,
+            0.6243,
+            0.2227,
+            0.6622
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_5)"
+        },
+        {
+          "name": "6",
+          "label": "6",
+          "type": "key",
+          "rect": [
+            0.2636,
+            0.6243,
+            0.3364,
+            0.6622
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_6)"
+        },
+        {
+          "name": "7",
+          "label": "7",
+          "type": "key",
+          "rect": [
+            0.0364,
+            0.6946,
+            0.1091,
+            0.7324
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_7)"
+        },
+        {
+          "name": "8",
+          "label": "8",
+          "type": "key",
+          "rect": [
+            0.15,
+            0.6946,
+            0.2227,
+            0.7324
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_8)"
+        },
+        {
+          "name": "9",
+          "label": "9",
+          "type": "key",
+          "rect": [
+            0.2636,
+            0.6946,
+            0.3364,
+            0.7324
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_9)"
+        },
+        {
+          "name": "DOT",
+          "label": ".",
+          "type": "key",
+          "rect": [
+            0.0364,
+            0.7649,
+            0.1091,
+            0.8027
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_DOT)"
+        },
+        {
+          "name": "0",
+          "label": "0",
+          "type": "key",
+          "rect": [
+            0.15,
+            0.7649,
+            0.2227,
+            0.8027
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_0)"
+        },
+        {
+          "name": "PLUSMINUS",
+          "label": "+/-",
+          "type": "key",
+          "rect": [
+            0.2636,
+            0.7649,
+            0.3364,
+            0.8027
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_PLUSMINUS)"
+        },
+        {
+          "name": "PREV",
+          "label": "PREV PAGE",
+          "type": "key",
+          "rect": [
+            0.0387,
+            0.8351,
+            0.1659,
+            0.873
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_PREVPAGE)"
+        },
+        {
+          "name": "NEXT",
+          "label": "NEXT PAGE",
+          "type": "key",
+          "rect": [
+            0.2069,
+            0.8351,
+            0.3341,
+            0.873
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_NEXTPAGE)"
+        },
+        {
+          "name": "A",
+          "label": "A",
+          "type": "key",
+          "rect": [
+            0.4036,
+            0.554,
+            0.4764,
+            0.5919
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_A)"
+        },
+        {
+          "name": "B",
+          "label": "B",
+          "type": "key",
+          "rect": [
+            0.5163,
+            0.554,
+            0.5891,
+            0.5919
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_B)"
+        },
+        {
+          "name": "C",
+          "label": "C",
+          "type": "key",
+          "rect": [
+            0.6291,
+            0.554,
+            0.7018,
+            0.5919
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_C)"
+        },
+        {
+          "name": "D",
+          "label": "D",
+          "type": "key",
+          "rect": [
+            0.7418,
+            0.554,
+            0.8146,
+            0.5919
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_D)"
+        },
+        {
+          "name": "E",
+          "label": "E",
+          "type": "key",
+          "rect": [
+            0.8545,
+            0.554,
+            0.9273,
+            0.5919
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_E)"
+        },
+        {
+          "name": "F",
+          "label": "F",
+          "type": "key",
+          "rect": [
+            0.4036,
+            0.6243,
+            0.4764,
+            0.6622
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_F)"
+        },
+        {
+          "name": "G",
+          "label": "G",
+          "type": "key",
+          "rect": [
+            0.5163,
+            0.6243,
+            0.5891,
+            0.6622
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_G)"
+        },
+        {
+          "name": "H",
+          "label": "H",
+          "type": "key",
+          "rect": [
+            0.6291,
+            0.6243,
+            0.7018,
+            0.6622
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_H)"
+        },
+        {
+          "name": "I",
+          "label": "I",
+          "type": "key",
+          "rect": [
+            0.7418,
+            0.6243,
+            0.8146,
+            0.6622
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_I)"
+        },
+        {
+          "name": "J",
+          "label": "J",
+          "type": "key",
+          "rect": [
+            0.8545,
+            0.6243,
+            0.9273,
+            0.6622
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_J)"
+        },
+        {
+          "name": "K",
+          "label": "K",
+          "type": "key",
+          "rect": [
+            0.4036,
+            0.6946,
+            0.4764,
+            0.7324
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_K)"
+        },
+        {
+          "name": "L",
+          "label": "L",
+          "type": "key",
+          "rect": [
+            0.5163,
+            0.6946,
+            0.5891,
+            0.7324
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_L)"
+        },
+        {
+          "name": "M",
+          "label": "M",
+          "type": "key",
+          "rect": [
+            0.6291,
+            0.6946,
+            0.7018,
+            0.7324
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_M)"
+        },
+        {
+          "name": "N",
+          "label": "N",
+          "type": "key",
+          "rect": [
+            0.7418,
+            0.6946,
+            0.8146,
+            0.7324
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_N)"
+        },
+        {
+          "name": "O",
+          "label": "O",
+          "type": "key",
+          "rect": [
+            0.8545,
+            0.6946,
+            0.9273,
+            0.7324
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_O)"
+        },
+        {
+          "name": "P",
+          "label": "P",
+          "type": "key",
+          "rect": [
+            0.4036,
+            0.7649,
+            0.4764,
+            0.8027
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_P)"
+        },
+        {
+          "name": "Q",
+          "label": "Q",
+          "type": "key",
+          "rect": [
+            0.5163,
+            0.7649,
+            0.5891,
+            0.8027
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_Q)"
+        },
+        {
+          "name": "R",
+          "label": "R",
+          "type": "key",
+          "rect": [
+            0.6291,
+            0.7649,
+            0.7018,
+            0.8027
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_R)"
+        },
+        {
+          "name": "S",
+          "label": "S",
+          "type": "key",
+          "rect": [
+            0.7418,
+            0.7649,
+            0.8146,
+            0.8027
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_S)"
+        },
+        {
+          "name": "T",
+          "label": "T",
+          "type": "key",
+          "rect": [
+            0.8545,
+            0.7649,
+            0.9273,
+            0.8027
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_T)"
+        },
+        {
+          "name": "U",
+          "label": "U",
+          "type": "key",
+          "rect": [
+            0.4036,
+            0.8351,
+            0.4764,
+            0.873
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_U)"
+        },
+        {
+          "name": "V",
+          "label": "V",
+          "type": "key",
+          "rect": [
+            0.5163,
+            0.8351,
+            0.5891,
+            0.873
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_V)"
+        },
+        {
+          "name": "W",
+          "label": "W",
+          "type": "key",
+          "rect": [
+            0.6291,
+            0.8351,
+            0.7018,
+            0.873
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_W)"
+        },
+        {
+          "name": "X",
+          "label": "X",
+          "type": "key",
+          "rect": [
+            0.7418,
+            0.8351,
+            0.8146,
+            0.873
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_X)"
+        },
+        {
+          "name": "Y",
+          "label": "Y",
+          "type": "key",
+          "rect": [
+            0.8545,
+            0.8351,
+            0.9273,
+            0.873
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_Y)"
+        },
+        {
+          "name": "Z",
+          "label": "Z",
+          "type": "key",
+          "rect": [
+            0.4036,
+            0.9054,
+            0.4764,
+            0.9433
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_Z)"
+        },
+        {
+          "name": "SP",
+          "label": "SP",
+          "type": "key",
+          "rect": [
+            0.5163,
+            0.9054,
+            0.5891,
+            0.9433
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_SP)"
+        },
+        {
+          "name": "DIV",
+          "label": "/",
+          "type": "key",
+          "rect": [
+            0.6291,
+            0.9054,
+            0.7018,
+            0.9433
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_DIV)"
+        },
+        {
+          "name": "CLR",
+          "label": "CLR DEL",
+          "type": "key",
+          "rect": [
+            0.7345,
+            0.9054,
+            0.9345,
+            0.9433
+          ],
+          "height": 0.002,
+          "click": "(>H:WT21_FMC_{i}_BTN_CLR)"
+        }
+      ],
+      "_sized": "v9.3: keys shrunk about their centres (test 10)"
+    },
+    "servo_pa": {
+      "style": "3d",
+      "size": [
+        0.11,
+        0.1013
+      ],
+      "face": "module",
+      "color": [
+        24,
+        24,
+        27
+      ],
+      "labels": [],
+      "controls": []
+    }
+  },
+  "_comment_move": "Standby instruments in the strip between the captain PFD and the MFD (user, 2026-10-16): attitude top-left (where the CLIMB was), airspeed top-right, altimeter under the attitude, CLIMB under the airspeed; the M/VRF speed card moves below. Each group is re-parented under a new carrier node that holds the move (so translation animations of e.g. the horizon's aircraft symbol and the altimeter flags keep working); x/y move about 'from' to 'to', uniform 'scale'; optional 'dz' moves the group towards the pilot and 'box' adds walls from the group's front to the panel face.",
+  "move": [
+    {
+      "id": "ap_servo_switches",
+      "nodes": [
+        "x0_AP_Sw_Rud",
+        "x0_AP_Sw_Roll",
+        "x0_AP_Sw_Pitch",
+        "x0_AP_Sw_Trim"
+      ],
+      "from": [
+        0.128,
+        0.136
+      ],
+      "to": [
+        0,
+        0.14880000000000002
+      ],
+      "scale": 1,
+      "dz": -0.01,
+      "_comment": "v9.2: AP servo switches from under the CDU to the old AP panel spot (on the SERVOPA plate)."
+    }
+  ],
+  "hide": {
+    "captain_flight_group": [
+      "x0_VOR_01",
+      "x0_ADI_01",
+      "x0_HSI_01",
+      "x0_RALT_01",
+      "x0_Cadre_Ralt01",
+      "Cadre_CI601_01",
+      "x0_IAS_01",
+      "x0_Cadre_ias01",
+      "x0_ALTI_01",
+      "x0_Struct_Cadres.003",
+      "x0_VSI_01",
+      "x0_HorizSec",
+      "x0_Cadre_HorizSec",
+      "Cube.129"
+    ],
+    "gps530": [
+      "AS530_"
+    ],
+    "radio_crs_box": [
+      "x0_CRS_"
+    ],
+    "old_ap_annunciators": [
+      "x0_Pan_ApWarn_01",
+      "x0_Warn_AP01_",
+      "x0_Btn_APwarn_01",
+      "x0_Sw_APwarn_01"
+    ],
+    "old_ap_pedestal": [
+      "x0_AP_Rotac_",
+      "x0_AP_n_Pitch",
+      "x0_AP_Sw_PA",
+      "x0_AP_Sw_LocAr",
+      "x0_AP_Sw_DV",
+      "x0_AP_SwCap_",
+      "x0_AP_Base",
+      "x0_Btn_AP_",
+      "x0_Warn_BtnAP_"
+    ]
+  },
+  "_comment_gps": "The GPS 530 housing (x0_GPS_base01/02) stays as the CDU housing; only its knobs, keys and screen (AS530_*) are hidden and the CDU plate sits on its front face (z=9.06). The author's xml shows the housing only while (L:GPS_isVisible, Bool) is 1, so plugin-wt21 sets that variable.",
+  "_comment_v82": "v8.2 (test 8): portrait 768x1024 pages and screens for PFD1/PFD2/MFD1; `lamp` = visibility expression of the key's lit lamp bar.",
+  "_comment_v9": "v9: CDU (FMC1) mounted on the pedestal with its keys; old AP panel and servo switches hidden; GPS 530 housing kept hidden by the MFD plugin.",
+  "_comment_v91": "v9.1 (test 9): screens and click zones are exact-size generated meshes (no node scale); CDU flat; CRS 1 follows the selected NAV.",
+  "_comment_v92": "v9.2: AP servo switches moved (not hidden) to the old AP panel spot, on the SERVOPA legend plate.",
+  "copies": [
+    {
+      "id": "servo_face",
+      "type": "face",
+      "node": "x0_Struct_Ped",
+      "material": "int_VC30_Front",
+      "rect": [
+        0.0714,
+        0.1814,
+        8.7891,
+        8.8904
+      ],
+      "y": 0.1337,
+      "offset": [
+        -0.128,
+        0.0128,
+        -0.01
+      ]
+    },
+    {
+      "id": "servo_parts",
+      "type": "triangles",
+      "nodes": [
+        "x0_Struct_Cadres",
+        "x0_Struct_PlotsLum"
+      ],
+      "box": [
+        0.078,
+        0.1814,
+        0.13,
+        0.165,
+        8.7891,
+        8.8904
+      ],
+      "offset": [
+        -0.128,
+        0.0128,
+        -0.01
+      ]
+    }
+  ],
+  "_comment_v93": "v9.3: original servo-panel art copied with the switches (copies); WT21 runs the TAPIR-mode-free copy of the systems WASM.",
+  "_comment_v94": "v9.4: DCP dual knobs (MENU ADV/DATA, RANGE/TILT) and BARO; WT21 WASM copy also stops the TAPIR trim servos.",
+  "_comment_v10_proposal": "PROPOSAL v10: PFD + MFD on the captain side, original engine gauges in the centre, original copilot side."
+}

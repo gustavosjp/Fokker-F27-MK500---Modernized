@@ -1,0 +1,20 @@
+{
+  "name": "f27-wt21-plugins",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Working Title WT21 MFD plugin for the Fokker F27-500 (Rolls-Royce Dart EICAS)",
+  "scripts": {
+    "build": "npx tspc --forceConsistentCasingInFileNames false && npx rollup -c rollup.config.mjs"
+  },
+  "devDependencies": {
+    "@microsoft/msfs-sdk": "file:C:/Projetos/f27-efis/localpkgs/microsoft-msfs-sdk-2.4.3.tgz",
+    "@microsoft/msfs-wtlinesdk": "file:C:/Projetos/f27-efis/localpkgs/microsoft-msfs-wtlinesdk-0.1.0-dev.7.tgz",
+    "@microsoft/msfs-wt21-shared": "file:C:/Projetos/msfs-avionics-mirror/src/workingtitle-instruments-wt21/shared/dist/msfs-wt21-shared-3.2.13.tgz",
+    "@microsoft/msfs-ts-transformer": "^1.0.0",
+    "@microsoft/msfs-types": "1.14.6",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "rollup": "^4.27.3",
+    "ts-patch": "^3.3.0",
+    "typescript": "5.8.3"
+  }
+}

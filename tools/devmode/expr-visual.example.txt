@@ -1,0 +1,16 @@
+// viewport / sizes
+window.innerWidth + "x" + window.innerHeight + " dpr=" + window.devicePixelRatio
+document.documentElement.clientWidth + "x" + document.documentElement.clientHeight
+// instrument element state
+(function(){var e=document.querySelector("wtg1000-pfd"); if(!e) return "no element"; var cs=getComputedStyle(e); var r=e.getBoundingClientRect(); return "class=["+e.className+"] display="+cs.display+" visibility="+cs.visibility+" opacity="+cs.opacity+" rect="+Math.round(r.width)+"x"+Math.round(r.height)+"@"+Math.round(r.left)+","+Math.round(r.top)+" children="+e.children.length;})()
+(function(){var e=document.getElementById("Mainframe"); if(!e) return "no #Mainframe"; var cs=getComputedStyle(e); var r=e.getBoundingClientRect(); return "display="+cs.display+" visibility="+cs.visibility+" opacity="+cs.opacity+" bg="+cs.backgroundColor+" rect="+Math.round(r.width)+"x"+Math.round(r.height)+"@"+Math.round(r.left)+","+Math.round(r.top);})()
+(function(){var e=document.getElementById("Electricity"); if(!e) return "no #Electricity"; var cs=getComputedStyle(e); var r=e.getBoundingClientRect(); return "state="+e.getAttribute("state")+" display="+cs.display+" visibility="+cs.visibility+" opacity="+cs.opacity+" rect="+Math.round(r.width)+"x"+Math.round(r.height);})()
+(function(){var e=document.getElementById("HorizonContainer"); if(!e) return "no #HorizonContainer"; var r=e.getBoundingClientRect(); return "children="+e.children.length+" rect="+Math.round(r.width)+"x"+Math.round(r.height);})()
+// body / html styles
+(function(){var cs=getComputedStyle(document.body); return "body bg="+cs.backgroundColor+" overflow="+cs.overflow+" w="+cs.width+" h="+cs.height;})()
+// which hidden classes exist and how many elements carry them
+document.querySelectorAll(".hidden-element, .hidden").length + " elements with hidden-element/hidden"
+(function(){var el=document.querySelector("wtg1000-pfd"); var p=el; var chain=[]; while(p&&p!==document.documentElement){chain.push(p.tagName+(p.id?"#"+p.id:"")+(p.className&&typeof p.className==="string"?"."+p.className.split(" ").join("."):"")); p=p.parentElement;} return chain.join(" < ");})()
+// resources: anything from our package and anything that looks failed
+performance.getEntriesByType("resource").filter(function(x){return /F27G1000|WTG1000|Navigraph/i.test(x.name);}).map(function(x){return x.name.replace(/^.*html_ui/i,"..")+" "+Math.round(x.duration)+"ms";}).join("\n")
+performance.getEntriesByType("resource").length + " resources total"
