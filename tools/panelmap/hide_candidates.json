@@ -1,0 +1,7 @@
+{
+ "cpt":   ["x0_IAS_01","x0_VOR_01","x0_ADI_01","x0_HSI_01","x0_ALTI_01","x0_RALT_01","x0_Cadre_ias01","x0_Struct_Cadres.003","x0_Cadre_Ralt01","x0_Cadre_CI601_01"],
+ "fo":    ["x0_IAS_02","x0_VOR_02","x0_ADI_02","x0_HSI_02","x0_ALTI_02","x0_RALT_02","x0_Cadre_ias02","x0_Cadre_Ralt02","x0_Cadre_CI601_02"],
+ "eng":   ["x0_Torq_01","x0_Torq_02","x0_RPM_01","x0_RPM_02","x0_ExhTemp_01","x0_ExhTemp_02","x0_FFFU_01","x0_FFFU_02","x0_OilPress_","x0_OilTemp_","x0_FuelPress_","x0_Sync_","x0_Pan_Eng"],
+ "engctl":["x0_Sw_relight01","x0_Sw_relight02","x0_Warn_OilPress","x0_OMI_"],
+ "gps":   ["AS530_","x0_GPS_base"]
+}

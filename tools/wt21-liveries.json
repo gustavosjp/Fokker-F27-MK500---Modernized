@@ -1,0 +1,11 @@
+{
+  "_comment": "v10.1 (user, 2026-10-23: 'queria que funcionasse nessas 3 [TAM, Rio Sul, SETE] para fazer voos de teste antes de publicar'). Liveries by Carlos Peroni for the base bgt F27, installed as their own Community packages. scaffold.ps1 adds one WT21 variation per entry whose texture folder holds only a texture.cfg (first fallback: the livery package's own texture folder) and the livery's thumbnails, so the livery package must stay installed. Not for publishing (scaffold.ps1 -NoLiveries leaves them out).",
+  "community": "%LOCALAPPDATA%\\Packages\\Microsoft.Limitless_8wekyb3d8bbwe\\LocalCache\\Packages\\Community",
+  "liveryBy": "Carlos Peroni",
+  "liveries": [
+    { "package": "BGT-F27-500-TAM-PT-LAJ", "simObject": "BGT-F27-500-TAM-PT-LAJ", "texture": "TAM-PT-LAJ", "atcId": "PT-LAJ", "airline": "TAM", "uiVariation": "TAM 1982 (PT-LAJ)" },
+    { "package": "BGT-F27-500-Rio Sul-PT-LZM 1986", "simObject": "BGT-F27-500-Rio Sul-PT-LZM", "texture": "RSL-PT-LZM", "atcId": "PT-LZM", "airline": "Rio Sul", "uiVariation": "Rio Sul 1986 (PT-LZM)" },
+    { "package": "BGT-F27-500-Rio Sul-PT-LZN 1986", "simObject": "BGT-F27-500-Rio Sul-PT-LZN", "texture": "RSL-PT-LZN", "atcId": "PT-LZN", "airline": "Rio Sul", "uiVariation": "Rio Sul 1986 (PT-LZN)" },
+    { "package": "BGT-F27-500-SETE-PS-SDW", "simObject": "BGT-F27-500-SETE-PS-SDW", "texture": "SETE-PS-SDW", "atcId": "PS-SDW", "airline": "SETE", "uiVariation": "SETE (PS-SDW)" }
+  ]
+}
