@@ -163,9 +163,34 @@ foreach ($l in [System.IO.File]::ReadAllLines($cfgPath)) {
     [void]$cur.Lines.Add($l)
     if ($l -match '^\s*texture\s*=\s*"([^"]*)"') { $cur.Texture = $Matches[1] }
 }
+# A livery whose folder name has characters beyond letters, digits, space, dot, dash and underscore (brackets, ampersand, accents...) is not
+# reached through a path in texture.cfg: the first NLM variation, whose package folder is "NLM (PH-KFL)", came out with no paint at all in
+# the sim, and not one of 596 texture.cfg in a real Community folder had a parenthesis in a fallback path. Those liveries get HARD LINKS
+# (the same file under a second name: no extra space) to their paint inside the add-on's own texture folder instead.
+function Test-PlainName([string]$name) { $name -match '^[A-Za-z0-9 _.\-]+$' }
+$linkMarker = 'Add-Liveries.source.txt'
+if (-not ('Native.HardLink' -as [type])) {
+    Add-Type -Namespace Native -Name HardLink -MemberDefinition '[System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, SetLastError = true)] public static extern bool CreateHardLink(string newFile, string existingFile, System.IntPtr security);'
+}
+# makes $dest the same file as $src; a hard link needs the same drive, so if it cannot be made the file is copied. Returns 'kept' / 'linked' / 'copied'.
+function Set-LinkedFile([string]$dest, [string]$src) {
+    $s = Get-Item -LiteralPath $src
+    if (Test-Path -LiteralPath $dest) {
+        $d = Get-Item -LiteralPath $dest
+        if ($d.Length -eq $s.Length -and $d.LastWriteTimeUtc -eq $s.LastWriteTimeUtc) { return 'kept' }
+        Remove-Item -LiteralPath $dest -Force
+    }
+    if ([Native.HardLink]::CreateHardLink($dest, $src, [System.IntPtr]::Zero)) { return 'linked' }
+    Copy-Item -LiteralPath $src -Destination $dest
+    (Get-Item -LiteralPath $dest).LastWriteTimeUtc = $s.LastWriteTimeUtc
+    'copied'
+}
+
 # a texture folder made by this script (or by an older build that baked the liveries in) takes the paint from a LIVERY package: its first
-# fallback goes to the SimObject of another package that is not the base aircraft (the add-on's own folders go across to the base aircraft)
+# fallback goes to the SimObject of another package that is not the base aircraft (the add-on's own folders go across to the base aircraft),
+# or it holds the marker of a linked livery
 function Test-LiveryFolder([string]$dir) {
+    if (Test-Path -LiteralPath (Join-Path $dir $linkMarker)) { return $true }
     $cfg = Join-Path $dir 'texture.cfg'
     if (-not (Test-Path $cfg)) { return $false }
     $first = Get-Content $cfg | Where-Object { $_ -match '^fallback\.1\s*=' } | Select-Object -First 1
@@ -186,6 +211,7 @@ foreach ($l in $liveries) {
     $folder = $l.Texture
     if ($shippedTextures -contains $folder.ToLower() -or ($oldFolders -notcontains "texture.$folder" -and (Test-Path (Join-Path $sim "texture.$folder")))) { $folder = "$($l.Texture)-livery" }   # never over something shipped
     $l | Add-Member -NotePropertyName Folder -NotePropertyValue $folder -Force
+    $l | Add-Member -NotePropertyName Linked -NotePropertyValue (-not ((Test-PlainName $l.SimObject) -and (Test-PlainName $l.Texture))) -Force
     $newFolders["texture.$folder"] = $l
 }
 $titleOf = { param($l) "Fokker F27500 Modernized $($l.Airline) $($l.AtcId)".Trim() }
@@ -196,7 +222,7 @@ $droppedNow = @($existingTitles | Where-Object { $t = $_; -not ($liveries | Wher
 "Community : $Community"
 "Add-on    : $pkgName ($($shipped.Count) shipped variation(s), $(@($blocks | Where-Object { $_.Generated }).Count) livery variation(s) now)"
 "Liveries of the base F27-500 found: $($liveries.Count)"
-foreach ($l in $liveries) { "  {0,-8} {1,-12} {2,-28} by {3}  [{4}]" -f $l.AtcId, $l.Airline, $l.UiVariation, $l.CreatedBy, $l.Package }
+foreach ($l in $liveries) { "  {0,-8} {1,-12} {2,-28} by {3}  [{4}]{5}" -f $l.AtcId, $l.Airline, $l.UiVariation, $l.CreatedBy, $l.Package, $(if ($l.Linked) { '  (linked: unusual folder name)' } else { '' }) }
 if ($addedNow.Count)   { "  new in the add-on : " + (($addedNow | ForEach-Object { "$($_.Airline) $($_.AtcId)" }) -join ', ') }
 if ($droppedNow.Count) { "  to be taken out   : " + ($droppedNow -join ', ') + ' (livery no longer installed)' }
 if ($List) { 'List only: nothing was changed.'; return }
@@ -241,21 +267,33 @@ function Write-IfDifferent([string]$path, [byte[]]$bytes) {
     }
     [System.IO.File]::WriteAllBytes($path, $bytes)
 }
+$linkStats = @{ linked = 0; copied = 0; kept = 0 }
 foreach ($f in $oldFolders) { if (-not $newFolders.ContainsKey($f)) { Remove-Item (Join-Path $sim $f) -Recurse -Force } }
 foreach ($key in $newFolders.Keys) {
     $l = $newFolders[$key]
     $dir = Join-Path $sim $key
     New-Item -ItemType Directory -Force $dir | Out-Null
-    $chain = @("..\..\$($l.SimObject)\texture.$($l.Texture)", '..\texture.common', "..\..\$baseSim\texture.vcen", "..\..\$baseSim\texture", "..\..\$baseSim\texture.common")
+    $keep = @('texture.cfg')
+    if ($l.Linked) {
+        # the paint is in this folder (hard links), so the chain only needs ours and the base aircraft's folders
+        $chain = @('..\texture.common', "..\..\$baseSim\texture.vcen", "..\..\$baseSim\texture", "..\..\$baseSim\texture.common")
+        Write-IfDifferent (Join-Path $dir $linkMarker) ($utf8.GetBytes("Hard links to the files of $($l.TextureDir)`r`nMade by Add-Liveries.ps1 (the folder name has characters a texture.cfg path may not take). Run it again to refresh.`r`n"))
+        $keep += $linkMarker
+        foreach ($f in Get-ChildItem -LiteralPath $l.TextureDir -File | Where-Object { $_.Name -notlike 'thumbnail*' -and $_.Name -ine 'texture.cfg' }) {
+            $linkStats[(Set-LinkedFile (Join-Path $dir $f.Name) $f.FullName)]++
+            $keep += $f.Name
+        }
+    } else {
+        $chain = @("..\..\$($l.SimObject)\texture.$($l.Texture)", '..\texture.common', "..\..\$baseSim\texture.vcen", "..\..\$baseSim\texture", "..\..\$baseSim\texture.common")
+    }
     $cfgLines = @('[fltsim]') + @(for ($i = 0; $i -lt $chain.Count; $i++) { "fallback.$($i + 1)=$($chain[$i])" })
     Write-IfDifferent (Join-Path $dir 'texture.cfg') ($utf8.GetBytes(($cfgLines -join "`r`n") + "`r`n"))
-    $keep = @('texture.cfg')
-    foreach ($t in Get-ChildItem $l.TextureDir -File | Where-Object { $_.Name -like 'thumbnail*' }) {
+    foreach ($t in Get-ChildItem -LiteralPath $l.TextureDir -File | Where-Object { $_.Name -like 'thumbnail*' }) {
         Write-IfDifferent (Join-Path $dir $t.Name) ([System.IO.File]::ReadAllBytes($t.FullName))
         $keep += $t.Name
     }
-    # a thumbnail the livery no longer has
-    foreach ($x in Get-ChildItem $dir -File | Where-Object { $keep -notcontains $_.Name }) { Remove-Item $x.FullName -Force }
+    # a thumbnail (or, for a linked livery, a texture) the livery no longer has
+    foreach ($x in Get-ChildItem -LiteralPath $dir -File | Where-Object { $keep -notcontains $_.Name }) { Remove-Item -LiteralPath $x.FullName -Force }
 }
 Write-IfDifferent $cfgPath ($utf8.GetBytes($cfgText))
 
@@ -292,6 +330,10 @@ $mf2 = [regex]::Replace($mf, '("total_package_size"\s*:\s*")\d+(")', '${1}' + $t
 Write-IfDifferent $manifestPath ($utf8.GetBytes($mf2))
 
 ''
+if ($linkStats.linked + $linkStats.copied + $linkStats.kept) {
+    "Liveries with an unusual folder name: $($linkStats.linked) file(s) hard-linked, $($linkStats.kept) already in place, $($linkStats.copied) copied."
+    if ($linkStats.copied) { 'NOTE: copied files take disk space; a hard link needs the livery package on the same drive as the add-on.' }
+}
 if ($Remove) { 'Livery variations removed: the add-on is as it was shipped.' }
 else { "Done: $($liveries.Count) livery variation(s) in the add-on. Restart the simulator to see them in the aircraft selector." }
 if (Get-Process -Name 'FlightSimulator2024' -ErrorAction SilentlyContinue) { 'NOTE: the simulator is running; restart it to load the change.' }

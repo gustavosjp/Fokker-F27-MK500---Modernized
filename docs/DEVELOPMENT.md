@@ -120,6 +120,24 @@ y 0.13..0.17, z 8.78..8.89, a horizontal panel).
   108 textures found`; backup in `_fallback\bgt-f27500-modernized-v11-before-add-liveries`. Not seen in the sim yet: the NLM variation
   itself (the mechanism is the one the four Peroni variations already showed working).
 
+### v11.2: a livery with brackets in its folder name goes by hard links (2026-10-29)
+* The user opened the NLM PH-KFL variation (`CustomFlight.FLT`: `Sim=Fokker F27500 Modernized NLM PH-KFL`) and the whole aircraft came out
+  black, propellers and wheels magenta (screenshot: "deu algum problema nas texturas"). Its `texture.cfg` fell back to
+  `..\..\NLM (PH-KFL)\texture.nlm` and `verify-addon.mjs` could not tell (it resolves paths with the file system, the sim does not).
+* Cause NOT proven, a hypothesis: the parentheses in a cross-package path. Evidence for it: it is the only one in 998 `texture.cfg` of the
+  real Community folder with a character beyond letters / digits / space / dot / dash / underscore in a fallback path (spaces are
+  common in packs that work, e.g. FSLabs, so they are not the suspect), and the whole chain failed, base paint included. Against it: no
+  documentation either way, and the four Peroni variations of the add-on form were not seen in the sim either.
+* Fix, harmless if the hypothesis is wrong: `Add-Liveries.ps1` no longer points at such a livery. It makes **hard links** (`CreateHardLink`,
+  no extra disk) to the livery's paint files inside the add-on's own `texture.<x>` folder, as if the paint were part of the add-on, and its
+  `texture.cfg` has only our `texture.common` and the base aircraft's folders. A marker file `Add-Liveries.source.txt` tells
+  the script (and `-Remove`) which folders are of this kind; if the livery is on another drive than the add-on the files are copied and the
+  script says so. `-List` marks these liveries. An add-on made by v11.1 is migrated by running the script again.
+* Checked: `tools\check-add-liveries.ps1` now 40 checks (a made-up `Livery-P` with the SimObject folder `P (XP-PPP)`, an old path-only
+  folder with a stale file migrated, `LinkType = HardLink`, `-List` mark, idempotent, `-Remove`). Real install: 24 files of NLM linked,
+  0 copied, `verify-addon.mjs` 0 failures; backup in `_fallback\bgt-f27500-modernized-v11-before-hardlinks`. To see in the sim: NLM, and
+  TAM PT-LAJ as a control (cross-package path with no odd character).
+
 ### v11: the add-on form, without the author's package (2026-10-28)
 * bgaurant, the author, after the user sent him the aircraft: "can you publish your improvements as an additional mod? I mean without
   including the original package?". 460 of the package's 533 files (202 MB) were byte copies of his. The add-on keeps 74 files

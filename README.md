@@ -102,6 +102,8 @@ O MSFS não procura pacotes sozinho: a lista de pinturas de um avião é escrita
 raiz do repositório e no zip da Release) faz isso **no seu computador**: varre a pasta Community atrás de toda pintura do F27-500 v2
 (qualquer pacote cujo `aircraft.cfg` herde de `..\Bgt_F27500v2` e tenha a pintura de fato), cria uma variação Modernized para cada uma e
 atualiza o `layout.json` do add-on. Das pinturas só são copiadas as duas miniaturas; elas continuam onde estão e precisam continuar instaladas.
+(Uma pintura cuja pasta tem caracteres incomuns no nome, como parênteses, não é apontada por caminho: o script cria *links físicos* dos
+arquivos dela dentro do add-on, que não ocupam espaço a mais. Isso exige a pintura no mesmo disco do add-on; se não for, ele copia e avisa.)
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\Add-Liveries.ps1          # cria/atualiza as variações
@@ -253,6 +255,8 @@ repository root and in the Release zip) does it **on your computer**: it scans t
 (any package whose `aircraft.cfg` inherits from `..\Bgt_F27500v2` and really has the paint), makes one Modernized variation for each
 and brings the add-on's `layout.json` up to date. Only the liveries' two thumbnails are copied; the liveries stay where they are and must
 stay installed.
+(A livery whose folder name has unusual characters, such as brackets, is not pointed at by path: the script makes *hard links* of its
+files inside the add-on, which take no extra space. This needs the livery on the same drive as the add-on; if not, it copies and says so.)
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\Add-Liveries.ps1          # makes / refreshes the variations
