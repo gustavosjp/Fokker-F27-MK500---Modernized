@@ -138,6 +138,40 @@ y 0.13..0.17, z 8.78..8.89, a horizontal panel).
   0 copied, `verify-addon.mjs` 0 failures; backup in `_fallback\bgt-f27500-modernized-v11-before-hardlinks`. To see in the sim: NLM, and
   TAM PT-LAJ as a control (cross-package path with no odd character).
 
+### v11.3: every livery under the one Modernized aircraft of the selector (2026-10-29)
+* "em vez de ter 1 aviao aparecendo no menu, da versao modernizado, e dentro dele varias livraries, tem 1 aviao para cada livrarie como
+  modernizado": the selector showed several Modernized aircraft instead of one with its liveries inside.
+* Cause: `Add-Liveries.ps1` wrote the livery maker into `ui_createdby` (`Bgt (Modernized), livery Carlos Peroni`, `..., livery RE
+  Liveries`), and MSFS 2024 makes one aircraft in the selector per `icao_model` + `ui_createdby` (Eric Pellissier, Asobo, on DevSupport:
+  "Aircraft are grouped by (icao_model + ui_createdby)"; livery makers there report the same fix). Our three values made three aircraft.
+  `icao_model` is the base aircraft's for all of ours (no `[GENERAL]` in the add-on's cfg), and `Bgt (Modernized)` still keeps ours apart
+  from the author's `Bgt`. Peroni's own packages, `Carlos Peroni`, are a separate aircraft next to the author's for the same reason
+  (theirs, not touched).
+* Fix: every livery variation keeps the shipped variation's `ui_createdby` (with `ui_manufacturer`, `ui_type`, `ui_typerole`); only
+  `ui_variation` names the livery, and the maker stays credited in the description ("Livery by ..."). Running the script again rewrites
+  the variations of an earlier run.
+* Checked: `tools\check-add-liveries.ps1` 43 checks (new: every variation has the shipped `ui_createdby`, which fails on the previous
+  script; an aircraft.cfg of the previous version is set right by a run, with its layout entry). On a copy of the real install (livery
+  packages joined by junctions, read-only): the same 6 liveries, aircraft.cfg differs from the installed one in exactly the 6
+  `ui_createdby` lines, every texture folder the same (only the NLM marker, which records the Community path).
+* Applied to the real install with the sim closed (backup in `_fallback\bgt-f27500-modernized-v11-before-one-card`: 85 files, hashes
+  checked, the 24 NLM hard links left out): only aircraft.cfg (the 6 lines), layout.json and manifest.json changed, layout 107 entries
+  for 107 files, `verify-addon.mjs` 0 failures. Seen in the sim by the user: one Modernized aircraft with its liveries inside ("as
+  liveries deram certo").
+* Release v11.3: the package is the v11.0 one (nothing in it changed since: the livery block `scaffold.ps1` lost was already off in the
+  public build, `make-addon.mjs` changed only a comment), and `Add-Liveries.ps1` now rides at the zip root, next to the package folder.
+* After that every boot stopped at 97% with "Loading unusually long: log saved to Report-loading.toml" and reached the menu only
+  minutes later. NOT this change: with the three pre-change files put back the boot was just as slow (A/B, same startup aircraft). Cause:
+  a livery the user had copied into Community that morning, `ICE-BB752-TF-FIU`, whose base aircraft (`bbs-757-200-rr-scimitarw`) is not
+  installed; with it gone the boot was normal again. What `LocalState\Report-loading.toml` showed each time:
+  `bAircraftsManager_AllContainersAreLoaded_Done=0`, `bUserContainer_Done=0`, `UserContainerTitle="<no container>"`, and the menu came
+  4 s after the report (the sim stops waiting). Lesson: a slow boot right after touching the add-on is not proof; look at what else entered
+  Community (folder CreationTime) and at liveries whose `base_container` is missing.
+* Found on the way: several livery packages declare sizes in their `layout.json` that their files do not have. 7TVRJ: albedo T3/T4 are
+  0.7 MB on disk, 22.4 MB in the layout; NLM: T2..T7 are 22.4 MB on disk, 16.8 MB (T7 0.26 MB) in the layout; Peroni's others only
+  their aircraft.cfg / thumbnails. The NLM mismatch is exactly on the paint, so it may be the real reason the v11.1 NLM variation came out
+  black, rather than the parentheses. The hard links fix it either way: our `layout.json` gives the linked files their true sizes.
+
 ### v11: the add-on form, without the author's package (2026-10-28)
 * bgaurant, the author, after the user sent him the aircraft: "can you publish your improvements as an additional mod? I mean without
   including the original package?". 460 of the package's 533 files (202 MB) were byte copies of his. The add-on keeps 74 files

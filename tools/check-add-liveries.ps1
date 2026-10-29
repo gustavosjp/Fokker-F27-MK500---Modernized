@@ -116,9 +116,12 @@ $expected = @('Fokker F27500 Modernized it80', 'Fokker F27500 Modernized Kappa X
 Check 'titles: shipped one, then one per livery, by package name' (($titles -join '|') -eq ($expected -join '|')) ($titles -join ' | ')
 Check 'variations are numbered 0..7 with no gap' ((@([regex]::Matches($cfg, '(?m)^\[FLTSIM\.(\d+)\]') | ForEach-Object { [int]$_.Groups[1].Value }) -join ',') -eq '0,1,2,3,4,5,6,7')
 $blockA = [regex]::Match($cfg, '(?s)\[FLTSIM\.2\].*?(?=\[FLTSIM\.3\])').Value
-Check 'a livery block: texture, registration, airline, selector text, author, description' (
+Check 'a livery block: texture, registration, airline, selector text, maker credited in the description' (
     $blockA -match 'texture = "aa"' -and $blockA -match 'atc_id = "XA-AAA"' -and $blockA -match 'atc_airline = "Alpha Air"' -and $blockA -match 'ui_variation = "Alpha Air \(XA-AAA\) - Modernized"' -and
-    $blockA -match 'ui_createdby = "Bgt \(Modernized\), livery Studio A"' -and $blockA -match 'Livery by Studio A \(needs the Livery-A livery package installed\)')
+    $blockA -match 'Livery by Studio A \(needs the Livery-A livery package installed\)')
+# MSFS 2024 makes one aircraft in the selector per icao_model + ui_createdby: a livery maker's name there made one aircraft per maker
+$createdBy = @([regex]::Matches($cfg, '(?m)^ui_createdby\s*=\s*"([^"]*)"') | ForEach-Object { $_.Groups[1].Value })
+Check 'every variation keeps the shipped ui_createdby (one aircraft in the selector)' ($createdBy.Count -eq 8 -and @($createdBy | Where-Object { $_ -cne 'Bgt (Modernized)' }).Count -eq 0) ($createdBy -join ' | ')
 Check 'a livery block keeps the add-on''s own model and panel (the WT21 ones)' ($blockA -match 'model = "wt21"' -and $blockA -match 'panel = "WT21"')
 Check 'an airline missing in the livery''s cfg is taken from its selector text' ($cfg -match 'atc_airline = "Beta Lines"')
 Check 'a texture called like a shipped folder gets its own name' ($cfg -match 'texture = "it80-livery"' -and (Test-Path "$sim\texture.it80-livery\texture.cfg"))
@@ -161,6 +164,15 @@ Start-Sleep -Milliseconds 1200
 $out2 = Run
 Check 'a second run changes nothing (same files, sizes, dates, bytes)' (((Tree $pkg) -join "`n") -eq ($once -join "`n"))
 Check 'a second run reports nothing new' ($out2 -notmatch 'new in the add-on' -and $out2 -notmatch 'to be taken out')
+
+# ---------------------------------------------------------------- 3b) an aircraft.cfg of the previous version (maker in ui_createdby) is set right by a run
+$c = [System.IO.File]::ReadAllText("$sim\aircraft.cfg")
+$at = $c.IndexOf(';===================== LIVERIES')
+[System.IO.File]::WriteAllText("$sim\aircraft.cfg", $c.Substring(0, $at) + $c.Substring($at).Replace('ui_createdby = "Bgt (Modernized)"', 'ui_createdby = "Bgt (Modernized), livery Studio A"'), $utf8)
+Run | Out-Null
+Check 'a run sets the maker''s name in ui_createdby back to the shipped one' ([System.IO.File]::ReadAllText("$sim\aircraft.cfg") -eq $c)
+$f = Get-Item "$sim\aircraft.cfg"
+Check '... and layout.json has the rewritten aircraft.cfg''s size and date' ([System.IO.File]::ReadAllText("$pkg\layout.json") -match ('"path": "simobjects/airplanes/bgt_f27500v2_modernized/aircraft\.cfg",\s*"size": ' + $f.Length + ',\s*"date": ' + $f.LastWriteTimeUtc.ToFileTimeUtc() + '\b'))
 
 # ---------------------------------------------------------------- 4) a livery uninstalled, one installed
 Remove-Item "$root\Livery-B" -Recurse -Force

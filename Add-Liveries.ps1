@@ -9,7 +9,8 @@
     1. looks in the Community folder for every package whose aircraft.cfg inherits from the base aircraft
        (base_container = "..\Bgt_F27500v2") and names a paint it really has;
     2. adds one Modernized variation per livery to the add-on's aircraft.cfg (below a marked "LIVERIES" line), with a texture
-       folder that only says "take the paint from the livery's own package, the rest from the aircraft";
+       folder that only says "take the paint from the livery's own package, the rest from the aircraft". All of them show as
+       liveries of the one Modernized aircraft in the selector (the livery's maker is named in its description);
     3. brings layout.json and manifest.json of the add-on up to date for the files it created.
 
   Nothing of any livery is copied except its two thumbnail images, on your own computer. The liveries stay installed where they
@@ -246,9 +247,11 @@ if ($liveries.Count) {
         $b[0] = "[FLTSIM.$index]"
         $b = Set-CfgField $b 'title'        (& $titleOf $l)
         $b = Set-CfgField $b 'texture'      $l.Folder
+        # ui_createdby (and ui_manufacturer / ui_type / ui_typerole) stay the shipped variation's: MSFS 2024 makes one aircraft in the
+        # selector per icao_model + ui_createdby (Asobo on DevSupport), so a livery maker's name there made one aircraft per maker.
+        # Only ui_variation names the livery; its maker is credited in the description.
         $b = Set-CfgField $b 'description'  "$baseDescription Livery by $($l.CreatedBy) (needs the $($l.Package) livery package installed)."
         $b = Set-CfgField $b 'ui_variation' "$($l.UiVariation) - Modernized"
-        $b = Set-CfgField $b 'ui_createdby' "Bgt (Modernized), livery $($l.CreatedBy)"
         $b = Set-CfgField $b 'atc_id'       $l.AtcId
         $b = Set-CfgField $b 'atc_airline'  $l.Airline
         Add-Trimmed $out $b
