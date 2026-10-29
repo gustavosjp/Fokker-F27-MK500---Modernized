@@ -87,6 +87,11 @@ Livery 'Clash' 'K' ((& $hd '..\Bgt_F27500v2') + (Fltsim 0 'it80' 'XK-KKK' 'Kappa
 Livery 'Other-Aircraft' 'Z' ((& $hd '..\Some_Other_Plane') + (Fltsim 0 'zz' 'XZ-ZZZ' 'Zed' 'Zed')) @{ zz = $paint }
 Livery 'No-Texture-Folder' 'N' ((& $hd '..\Bgt_F27500v2') + (Fltsim 0 'missing' 'XN-NNN' 'N' 'N')) @{}
 Livery 'Empty-Paint' 'E' ((& $hd '..\Bgt_F27500v2') + (Fltsim 0 'ee' 'XE-EEE' 'E' 'E')) @{ ee = @('texture.cfg') }
+# a SimObject folder with brackets, like the real "NLM (PH-KFL)": reached by hard links, not by a path in texture.cfg
+Livery 'Livery-P' 'P (XP-PPP)' ((& $hd '..\Bgt_F27500v2') + (Fltsim 0 'pp' 'XP-PPP' 'Pi Air' 'Pi Air (XP-PPP)' 'Studio P')) @{ pp = $paint }
+# what an earlier run of this script left for it: a path-only texture.cfg (and a file the livery does not have)
+Put "$sim\texture.pp\texture.cfg" "[fltsim]`r`nfallback.1=..\..\P (XP-PPP)\texture.pp`r`nfallback.2=..\texture.common`r`n"
+Put "$sim\texture.pp\old.dds" 'stale'
 New-Item -ItemType Directory -Force "$root\Not-A-Livery\html_ui" | Out-Null
 
 $others = Tree $root | Where-Object { $_ -notlike '\bgt-f27500-modernized\*' }          # everything outside the add-on
@@ -95,7 +100,8 @@ $addonBefore = Tree $pkg
 # ---------------------------------------------------------------- 1) -List changes nothing
 $out = Run @{ List = $true }
 Check '-List changes nothing' (((Tree $pkg) -join "`n") -eq ($addonBefore -join "`n"))
-Check '-List says what it found' ($out -match 'Liveries of the base F27-500 found: 6' -and $out -match 'XA-AAA' -and $out -match 'List only')
+Check '-List says what it found' ($out -match 'Liveries of the base F27-500 found: 7' -and $out -match 'XA-AAA' -and $out -match 'List only')
+Check '-List marks the livery that goes by hard links' ($out -match 'XP-PPP.*linked: unusual folder name' -and $out -notmatch 'XA-AAA.*linked')
 Check '-List says an older build''s livery would be taken out' ($out -match 'to be taken out' -and $out -match 'Fokker F27500 Modernized Old Baked PT-OLD')
 
 # ---------------------------------------------------------------- 2) apply
@@ -106,9 +112,9 @@ Check 'aircraft.cfg: the LIVERIES line is there once' (([regex]::Matches($cfg, '
 Check 'aircraft.cfg: the baked livery of an older build is gone' ($cfg -notmatch 'Old Baked|OLD-BAKED|PT-OLD')
 $titles = @([regex]::Matches($cfg, '(?m)^title\s*=\s*"([^"]*)"') | ForEach-Object { $_.Groups[1].Value })
 $expected = @('Fokker F27500 Modernized it80', 'Fokker F27500 Modernized Kappa XK-KKK', 'Fokker F27500 Modernized Alpha Air XA-AAA', 'Fokker F27500 Modernized Beta Lines XB-BBB',
-              'Fokker F27500 Modernized Gamma XC-001', 'Fokker F27500 Modernized Gamma XC-002', 'Fokker F27500 Modernized Omega XW-WWW')   # by package name: Clash, Livery-A, -B, -C, Wrong-Case-Slashes
+              'Fokker F27500 Modernized Gamma XC-001', 'Fokker F27500 Modernized Gamma XC-002', 'Fokker F27500 Modernized Pi Air XP-PPP', 'Fokker F27500 Modernized Omega XW-WWW')   # by package name: Clash, Livery-A, -B, -C, -P, Wrong-Case-Slashes
 Check 'titles: shipped one, then one per livery, by package name' (($titles -join '|') -eq ($expected -join '|')) ($titles -join ' | ')
-Check 'variations are numbered 0..6 with no gap' ((@([regex]::Matches($cfg, '(?m)^\[FLTSIM\.(\d+)\]') | ForEach-Object { [int]$_.Groups[1].Value }) -join ',') -eq '0,1,2,3,4,5,6')
+Check 'variations are numbered 0..7 with no gap' ((@([regex]::Matches($cfg, '(?m)^\[FLTSIM\.(\d+)\]') | ForEach-Object { [int]$_.Groups[1].Value }) -join ',') -eq '0,1,2,3,4,5,6,7')
 $blockA = [regex]::Match($cfg, '(?s)\[FLTSIM\.2\].*?(?=\[FLTSIM\.3\])').Value
 Check 'a livery block: texture, registration, airline, selector text, author, description' (
     $blockA -match 'texture = "aa"' -and $blockA -match 'atc_id = "XA-AAA"' -and $blockA -match 'atc_airline = "Alpha Air"' -and $blockA -match 'ui_variation = "Alpha Air \(XA-AAA\) - Modernized"' -and
@@ -121,6 +127,16 @@ $tcfg = [System.IO.File]::ReadAllText("$sim\texture.aa\texture.cfg")
 Check 'texture.cfg: the livery first, then ours, then the base aircraft''s' (
     $tcfg -eq "[fltsim]`r`nfallback.1=..\..\A\texture.aa`r`nfallback.2=..\texture.common`r`nfallback.3=..\..\Bgt_F27500v2\texture.vcen`r`nfallback.4=..\..\Bgt_F27500v2\texture`r`nfallback.5=..\..\Bgt_F27500v2\texture.common`r`n") $tcfg
 Check 'only the thumbnails are copied (and texture.cfg): no paint' ((@(Get-ChildItem "$sim\texture.aa" -File | ForEach-Object { $_.Name } | Sort-Object) -join ',') -eq 'texture.cfg,thumbnail.JPG,thumbnail_small.JPG')
+# the livery with brackets in its folder name: hard links to its paint, no path to its package in texture.cfg
+$pcfg = [System.IO.File]::ReadAllText("$sim\texture.pp\texture.cfg")
+Check 'linked livery: texture.cfg has no path to the livery package (ours, then the base aircraft''s)' (
+    $pcfg -eq "[fltsim]`r`nfallback.1=..\texture.common`r`nfallback.2=..\..\Bgt_F27500v2\texture.vcen`r`nfallback.3=..\..\Bgt_F27500v2\texture`r`nfallback.4=..\..\Bgt_F27500v2\texture.common`r`n") $pcfg
+Check 'linked livery: its paint, thumbnails and the marker are in the folder; the stale file and the cfg of the livery are not' (
+    (@(Get-ChildItem "$sim\texture.pp" -File | ForEach-Object { $_.Name } | Sort-Object) -join ',') -eq 'Add-Liveries.source.txt,F275BGT_T2_ALBD.PNG.DDS,texture.cfg,thumbnail.JPG,thumbnail_small.JPG')
+$ppaint = "$sim\texture.pp\F275BGT_T2_ALBD.PNG.DDS"
+Check 'linked livery: the paint is the livery''s own file' ((Get-Content $ppaint -Raw) -eq 'x:Livery-P/pp/F275BGT_T2_ALBD.PNG.DDS')
+Check 'linked livery: ... as a hard link (no second copy of the paint)' ((Get-Item $ppaint).LinkType -eq 'HardLink') "LinkType = $((Get-Item $ppaint).LinkType)"
+Check 'the other liveries have no marker and no linked paint' (-not (Test-Path "$sim\texture.aa\Add-Liveries.source.txt") -and -not (Test-Path "$sim\texture.aa\F275BGT_T2_ALBD.PNG.DDS"))
 Check 'the baked livery''s texture folder is gone' (-not (Test-Path "$sim\texture.OLD-BAKED"))
 Check 'what is not a livery of the base aircraft is not added' ($cfg -notmatch 'XZ-ZZZ|XN-NNN|XE-EEE')
 Check 'shipped texture folders are untouched (they fall back across packages too, to the base aircraft)' ((Get-Content "$sim\texture.it80\texture.cfg" -Raw) -eq $shippedTexCfg -and (Get-Content "$sim\texture.it80\thumbnail.jpg" -Raw) -eq 'it80 thumb')
@@ -152,7 +168,7 @@ Livery 'Livery-D' 'D' ((& $hd '..\Bgt_F27500v2') + (Fltsim 0 'dd' 'XD-DDD' 'Delt
 $out3 = Run
 $cfg3 = [System.IO.File]::ReadAllText("$sim\aircraft.cfg")
 Check 'the uninstalled livery is taken out (variation, folder, layout)' ($cfg3 -notmatch 'XB-BBB' -and -not (Test-Path "$sim\texture.bb") -and ([System.IO.File]::ReadAllText("$pkg\layout.json") -notmatch 'texture\.bb/'))
-Check 'the new one is in, numbering still has no gap' ($cfg3 -match 'XD-DDD' -and (Test-Path "$sim\texture.dd\texture.cfg") -and ((@([regex]::Matches($cfg3, '(?m)^\[FLTSIM\.(\d+)\]') | ForEach-Object { [int]$_.Groups[1].Value }) -join ',') -eq '0,1,2,3,4,5,6'))
+Check 'the new one is in, numbering still has no gap' ($cfg3 -match 'XD-DDD' -and (Test-Path "$sim\texture.dd\texture.cfg") -and ((@([regex]::Matches($cfg3, '(?m)^\[FLTSIM\.(\d+)\]') | ForEach-Object { [int]$_.Groups[1].Value }) -join ',') -eq '0,1,2,3,4,5,6,7'))
 Check 'the run said what changed' ($out3 -match 'new in the add-on : Delta XD-DDD' -and $out3 -match 'to be taken out')
 
 # ---------------------------------------------------------------- 5) -Remove: as shipped
