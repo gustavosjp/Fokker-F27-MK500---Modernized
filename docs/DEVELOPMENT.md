@@ -114,6 +114,11 @@ y 0.13..0.17, z 8.78..8.89, a horizontal panel).
   and the package thumbnail: to replace). The liveries' variations are Carlos Peroni's: `-NoLiveries` to publish.
 * Untested in the sim: a glTF buffer and an XML include in another package (the liveries only prove `texture.cfg` and `panel=`
   paths across packages).
+* Add-on test 1 (the cockpit loaded, his geometry read from his package, the include of his behaviours worked): "os controles não
+  funcionam, os do painel superior; alguns ficam travados". His interior XML includes its sibling `F275bgt.xml` (his BGT_* templates:
+  44 switches, 40 knobs, 33 push buttons, the warning lights) by a plain name, and the sim resolves it from OUR model folder, where the
+  root XML is, not from his. `make-addon.mjs` now leaves a bridge of ours under that name, which only includes his file from his
+  package; `verify-addon.mjs` checks that every plain include inside his XMLs reaches his file through a bridge.
 * Installed 2026-10-28 21:18 for that test (the user's OK; built on the first attempt; `verify-addon.mjs` 0 failures on the sources,
   on `out` and on the installed folder; 76 files identical to `out` by SHA-256). The full v10.12 that was installed is kept in
   `_fallback\bgt-f27500-modernized-v10.12` (checked identical): copy it back over the folder if the add-on does not load.

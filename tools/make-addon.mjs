@@ -111,6 +111,33 @@ const prune = (dir) => {
 };
 prune(pkgDir);
 
+// ---------- 3b. bridges: his XMLs, included from his package, include their siblings by plain names, which the sim resolves from OUR
+// model folder (where the root XML is). Add-on test 1: his F275bgt.xml (his BGT_* templates: switches, knobs, push buttons, warning
+// lights) was looked for here, and every control built on it was dead or stuck. A bridge is a file of ours with the same name that
+// only includes his, from his package.
+report.bridges = [];
+const crossPrefix = `${TO_AUTHOR}\\model\\`;
+const queue = readdirSync(join(sim, 'model')).filter((n) => /\.xml$/i.test(n))
+  .flatMap((n) => [...readFileSync(join(sim, 'model', n), 'utf8').matchAll(/RelativeFile="([^"]+)"/g)].map((m) => m[1]))
+  .filter((ref) => ref.startsWith(crossPrefix)).map((ref) => ref.slice(crossPrefix.length));
+for (const seen = new Set(); queue.length;) {
+  const name = queue.shift();
+  if (seen.has(name)) continue;
+  seen.add(name);
+  for (const [, sib] of readFileSync(join(authorSim, 'model', name), 'utf8').matchAll(/RelativeFile="([^"\\/]+)"/g)) {
+    queue.push(sib);
+    const bridge = join(sim, 'model', sib);
+    if (existsSync(bridge)) continue;
+    writeFileSync(bridge, ['<?xml version="1.0" encoding="utf-8"?>',
+      `<!-- Add-on bridge: the author's model XMLs, included from his package, include "${sib}" by a path the sim resolves from this`,
+      '     folder; this file of ours only sends that include on to his own file, in his package. -->',
+      '<ModelBehaviors>',
+      `\t<Include RelativeFile="${crossPrefix}${sib}"/>`,
+      '</ModelBehaviors>', ''].join('\r\n'));
+    report.bridges.push(rel(bridge));
+  }
+}
+
 // his checklist with its paths moved to our folder: his own, inherited, points to his folder where its pictures are
 if (existsSync(join(sim, 'Checklist'))) {
   rmSync(join(sim, 'Checklist'), { recursive: true });
@@ -169,4 +196,4 @@ for (const p of walk(pkgDir)) { report.files++; report.bytes += statSync(p).size
 writeFileSync(reportPath, JSON.stringify(report, null, 2));
 console.log(`add-on: ${report.files} files, ${(report.bytes / 1048576).toFixed(1)} MB; removed ${report.removedIdentical} files identical to the author's `
   + `(${(report.removedBytes / 1048576).toFixed(1)} MB); models split: ${report.models.map((m) => `${basename(m.gltf)} (ours ${(m.ourBytes / 1024).toFixed(0)} KB)`).join(', ')}; `
-  + `author's images kept: ${report.keptAuthorImages.length}; derived files: ${report.derived.length}`);
+  + `author's images kept: ${report.keptAuthorImages.length}; derived files: ${report.derived.length}; bridges: ${report.bridges.join(', ') || 'none'}`);
