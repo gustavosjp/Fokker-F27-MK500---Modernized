@@ -92,6 +92,34 @@ removed, and the CDU moved to the pedestal (or to the captain's left shelf). Not
 an autopilot until the new one works (Phase 3). Old AP nodes: `x0_AP_*`, `x0_Btn_AP_*`, `x0_Warn_BtnAP_*` (pedestal top, x -0.073..0.169,
 y 0.13..0.17, z 8.78..8.89, a horizontal panel).
 
+### v11.1: the liveries are found on each machine (2026-10-29)
+* User added a livery by another maker (`RE_Liveries_F-27_NLM (PH-KFL)`, RE Liveries) and it did not show in the Modernized: the list
+  of liveries was a fixed file (`tools\wt21-liveries.json`, four of Carlos Peroni's) read by `scaffold.ps1` at build time. Then: "quero que
+  o usuario tenha as pinturas dele, mesmo se eu nao tiver elas instaladas" (the user of the published add-on, not only this machine).
+* The sim cannot enumerate packages: a variation is a `[FLTSIM.n]` block in the aircraft's own `aircraft.cfg`. So the list has to be
+  written on the machine that has the liveries. `Add-Liveries.ps1` (repo root; to go in the Release zip) does it there: scans Community for
+  every package whose `aircraft.cfg` has `base_container` ending in `Bgt_F27500v2` and a `[FLTSIM.n]` naming a `texture.<x>` folder that
+  holds a `*_ALBD.*` paint (both makers found so far follow it); adds one Modernized variation per livery below a marked `LIVERIES`
+  line of the add-on's `aircraft.cfg` (title `Fokker F27500 Modernized <airline> <registration>` as before, so saved flights keep working),
+  a `texture.<x>` folder with only `texture.cfg` (livery first, then our `texture.common`, then the base aircraft's vcen / texture /
+  common: the chain `make-addon.mjs` writes) and the two thumbnails, and brings `layout.json` / `manifest.json` up to date.
+  `-List` shows what it found, `-Remove` puts the add-on back as shipped; a second run changes nothing.
+* No livery is baked into a build any more: `scaffold.ps1` lost its livery block (`-NoLiveries` is accepted and does nothing), the fixed
+  list is gone, `verify-package.ps1` now checks that a build has NO third-party livery variation. After a deploy, run `Add-Liveries.ps1`.
+* Lessons: (1) the add-on's own texture folders ALSO fall back across packages, to the base aircraft (`..\..\Bgt_F27500v2\...`), so a
+  livery folder is told apart by the target: another package's SimObject that is not the base aircraft. The first version took every
+  cross-package folder for a livery and found no shipped variation on the real install; the made-up Community folder of the test had
+  only the simple case, now it has both. (2) `layout.json` conventions: entries sorted by code point (ordinal), lower-case paths, `date`
+  = FILETIME, no entry for layout.json / manifest.json, `total_package_size` = sum of the sizes. (3) Windows PowerShell 5.1:
+  `[Array]::Sort(keys, items, comparer)` sorted the keys and left the items alone (use a `SortedDictionary` with an ordinal comparer);
+  `"$Community:"` is read as a drive-qualified variable (write `${Community}`); array splatting passes `-List` as text (splat a hashtable).
+* Checked: `tools\check-add-liveries.ps1` (34 checks on an invented Community folder: only liveries of the base aircraft found, what is
+  not one ignored, baked liveries of an older build migrated, layout / manifest consistent and sorted, idempotent, a livery uninstalled /
+  installed, a texture named like a shipped folder, `-Remove`, nothing outside the add-on touched). On the real install: 5 liveries
+  found (the four of Peroni, whose titles came out identical, and NLM PH-KFL), `verify-addon.mjs` 0 failures including `texture.nlm: all
+  108 textures found`; backup in `_fallback\bgt-f27500-modernized-v11-before-add-liveries`. Not seen in the sim yet: the NLM variation
+  itself (the mechanism is the one the four Peroni variations already showed working).
+
 ### v11: the add-on form, without the author's package (2026-10-28)
 * bgaurant, the author, after the user sent him the aircraft: "can you publish your improvements as an additional mod? I mean without
   including the original package?". 460 of the package's 533 files (202 MB) were byte copies of his. The add-on keeps 74 files

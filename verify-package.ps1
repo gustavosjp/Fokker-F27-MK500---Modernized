@@ -38,23 +38,16 @@ foreach ($k in $v.Keys | Sort-Object { [int]$_ }) {
     Check "FLTSIM.$k panel folder"   (Test-Path ("$sim\panel" + (& $suffix 'panel')))
     Check "FLTSIM.$k texture folder" (Test-Path ("$sim\texture" + (& $suffix 'texture')))
 }
-# v10.1: WT21 variations in the user's third-party liveries (tools\wt21-liveries.json): each texture folder holds no texture, only a
-# texture.cfg falling back to the livery package's own texture folder (which must be installed) and then to this aircraft's folders
-$livJson = Get-Content 'C:\Projetos\f27-g1000\tools\wt21-liveries.json' -Raw | ConvertFrom-Json
-$livJson.community = [Environment]::ExpandEnvironmentVariables($livJson.community)
-foreach ($l in $livJson.liveries) {
-    $k = @($v.Keys | Where-Object { $v[$_].texture -eq $l.texture })
-    if ($k.Count -eq 0) { "  --   livery $($l.texture): no variation (left out by -NoLiveries, or the livery is not installed)"; continue }
-    # v10.8: each livery comes as the Modernized (WT21) and the Classic variation; v10.9: the Classic one only with -ClassicVariation
-    $kinds = @($k | ForEach-Object { "$($v[$_].model)/$($v[$_].panel)" } | Sort-Object)
-    $wantKinds = $(if (Test-Path "$sim\panel.Classic") { 'classic/Classic,wt21/WT21' } else { 'wt21/WT21' })
-    $fb = @(Get-Content "$sim\texture.$($l.texture)\texture.cfg" -ErrorAction SilentlyContinue | Where-Object { $_ -match '^fallback\.\d+=' } | ForEach-Object { $_.Split('=', 2)[1] })
-    $want = @("..\..\$($l.simObject)\texture.$($l.texture)", '..\texture.vcen', '..\texture', '..\texture.common')
-    $dds = @(Get-ChildItem "$sim\texture.$($l.texture)" -Filter '*.dds' -ErrorAction SilentlyContinue).Count
-    Check "livery $($l.airline) $($l.atcId): variations $wantKinds, texture.cfg falls back to the livery package first, no texture copied" ((($kinds -join ',') -eq $wantKinds) -and (($fb -join '|') -eq ($want -join '|')) -and ($dds -eq 0)) "$($kinds -join ',') | $($fb -join '|')"
-    Check "livery package $($l.package) installed (its texture folder has the paint)" (Test-Path "$($livJson.community)\$($l.package)\SimObjects\Airplanes\$($l.simObject)\texture.$($l.texture)\F275BGT_T2_ALBD.PNG.DDS")
+# v11.1: no livery is baked into the build any more (Add-Liveries.ps1 writes them on each machine). A variation whose texture folder takes
+# its paint from ANOTHER package's SimObject that is not the base aircraft is a third-party livery: it must not be in a build to publish.
+$foreign = @()
+foreach ($k in $v.Keys) {
+    $tex = $v[$k].texture
+    if (-not $tex) { continue }
+    $first = Get-Content "$sim\texture.$tex\texture.cfg" -ErrorAction SilentlyContinue | Where-Object { $_ -match '^fallback\.1\s*=' } | Select-Object -First 1
+    if ($first -and $first.Split('=', 2)[1].Trim() -match '^\.\.\\\.\.\\([^\\]+)\\' -and $Matches[1] -ne 'Bgt_F27500v2') { $foreign += "FLTSIM.$k ($tex)" }
 }
-if (@($livJson.liveries | Where-Object { $t = $_.texture; $v.Values | Where-Object { $_.texture -eq $t } }).Count) { "  NOTE this build has variations in third-party liveries: rebuild with scaffold.ps1 -NoLiveries before publishing" }
+Check 'no third-party livery variation in the build (Add-Liveries.ps1 adds them on each machine)' ($foreign.Count -eq 0) ($foreign -join ', ')
 
 "model folders -> interior xml -> gltf -> bin"
 foreach ($m in Get-ChildItem $sim -Directory -Filter 'model*') {

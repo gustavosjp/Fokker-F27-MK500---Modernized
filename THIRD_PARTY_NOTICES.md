@@ -25,10 +25,10 @@ with the font as `plugin-wt21/tablet/DejaVu-LICENSE.txt`.
 Not included. The add-on requires the author's package (`bgt-f27500-v2`) and reads his models, textures, sounds and systems from it.
 The files generated from his are listed in the README ("Files derived from the author's aircraft") and ship with his permission.
 
-## Liveries and 4K textures — Carlos Peroni
+## Liveries and 4K textures — each author (for example Carlos Peroni, RE Liveries)
 
-Not included. The Modernized variations of his liveries reference his installed packages; the build that leaves them out is
-`scaffold.ps1 -NoLiveries`.
+Not included. `Add-Liveries.ps1` runs on the user's own computer and writes variations that point to the liveries installed there
+(a `texture.cfg` that says "take the paint from that package"); it copies only their two thumbnail images, locally, and distributes nothing.
 
 ## GSX Pro — FSDreamTeam
 

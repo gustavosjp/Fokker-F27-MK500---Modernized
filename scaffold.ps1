@@ -7,7 +7,7 @@
 # (which DELETES the tree and loses manual edits).
 #
 # Usage: powershell -ExecutionPolicy Bypass -File C:\Projetos\f27-g1000\scaffold.ps1 [-Force] [-NoLiveries]
-#   -NoLiveries leaves out the WT21 variations in the user's third-party liveries (tools\wt21-liveries.json): needed for anything published.
+#   -NoLiveries does nothing since v11.1: liveries are no longer baked into the build (run Add-Liveries.ps1 after installing).
 #   -ClassicVariation also builds v10.8's separate Classic variation (the author's cockpit with his own WASM, the TAPIR on the sim's
 #   autopilot). Since v10.9 the Modernized variation switches to that cockpit in the tablet's Settings, so it is off by default.
 param([switch]$Force, [switch]$NoLiveries, [switch]$ClassicVariation)
@@ -113,49 +113,9 @@ $all = @($header) + @(';===================== FLTSIM =====================', '')
 # v10.9: the Modernized variation has the Classic cockpit in its tablet; the separate one only on request
 if ($ClassicVariation) { $all += @('') + $classic + @('') }
 
-# v10.1 (user: TAM, Rio Sul and SETE "para fazer voos de teste antes de publicar"): one WT21 variation per livery of tools\wt21-liveries.json,
-# Carlos Peroni's liveries for the base F27, installed as their own Community packages. Nothing of them is copied except the thumbnails:
-# the variation's texture folder holds a texture.cfg whose FIRST fallback is the livery package's own texture folder (a cross-package
-# fallback, as those liveries themselves use for the base aircraft's folders), then this aircraft's vcen / texture / common (where the
-# WT21 hardware textures are). So the livery package must stay installed. -NoLiveries leaves them out (they are not ours to publish).
-function Set-FltFields([string[]]$block, [hashtable]$fields) {
-    $out = foreach ($l in $block) {
-        $key = @($fields.Keys | Where-Object { $l -match "^$_\s*=" }) | Select-Object -First 1
-        if ($key) { "$key = `"$($fields[$key])`"" + $(if ($l -match ';(.*)$') { " ;$($Matches[1])" } else { '' }) } else { $l }
-    }
-    ,$out
-}
-if (-not $NoLiveries) {
-    $liv = Get-Content "$proj\tools\wt21-liveries.json" -Raw | ConvertFrom-Json
-    $liv.community = [Environment]::ExpandEnvironmentVariables($liv.community)
-    $index = $(if ($ClassicVariation) { 2 } else { 1 })
-    foreach ($l in $liv.liveries) {
-        $srcTex = "$($liv.community)\$($l.package)\SimObjects\Airplanes\$($l.simObject)\texture.$($l.texture)"
-        if (-not (Test-Path $srcTex)) { Write-Warning "livery package not installed, variation left out: $($l.package)"; continue }
-        $texDir = "$simDst\texture.$($l.texture)"
-        New-Item -ItemType Directory -Force $texDir | Out-Null
-        [System.IO.File]::WriteAllText("$texDir\texture.cfg", (@(
-            '[fltsim]'
-            "fallback.1=..\..\$($l.simObject)\texture.$($l.texture)"
-            'fallback.2=..\texture.vcen'
-            'fallback.3=..\texture'
-            'fallback.4=..\texture.common'
-        ) -join "`r`n") + "`r`n", $utf8)
-        Copy-Item "$srcTex\thumbnail*" $texDir
-        $block = New-Variation (Get-FltBlock $cfg 1) $index "Fokker F27500 Modernized $($l.airline) $($l.atcId)" "$($l.uiVariation) - Modernized" `
-            "$wt21Description Livery by $($liv.liveryBy) (needs the $($l.package) livery package installed)." 'wt21' 'WT21' "Bgt (Modernized), livery $($liv.liveryBy)"
-        $all += @('') + (Set-FltFields $block @{ texture = $l.texture; atc_id = $l.atcId; atc_airline = $l.airline }) + @('')
-        "livery variation FLTSIM.$($index): $($l.airline) $($l.atcId) -> texture.$($l.texture) (fallback to $($l.simObject))"
-        $index++
-        # v10.8: the same livery in the Classic variation (v10.9: only with -ClassicVariation)
-        if (-not $ClassicVariation) { continue }
-        $block = New-Variation (Get-FltBlock $cfg 1) $index "Fokker F27500 Classic $($l.airline) $($l.atcId)" "$($l.uiVariation) - Classic" `
-            "$classicDescription Livery by $($liv.liveryBy) (needs the $($l.package) livery package installed)." 'classic' 'Classic' "Bgt (Classic + F27 tablet), livery $($liv.liveryBy)"
-        $all += @('') + (Set-FltFields $block @{ texture = $l.texture; atc_id = $l.atcId; atc_airline = $l.airline }) + @('')
-        "livery variation FLTSIM.$($index): $($l.airline) $($l.atcId) Classic -> texture.$($l.texture)"
-        $index++
-    }
-}
+# v11.1 (user: "quero que o usuario tenha as pinturas dele, mesmo se eu nao tiver elas instaladas"): no livery is baked into the build any
+# more. Which liveries exist depends on the computer the add-on is installed on, so Add-Liveries.ps1 writes the variations THERE (on the
+# user's machine, and on this one after the deploy). -NoLiveries is still accepted so earlier instructions work; it changes nothing now.
 [System.IO.File]::WriteAllLines("$simDst\aircraft.cfg", $all, $utf8)
 
 # --- 6. WT21 (CJ4 style) variation: model.wt21 + panel.WT21 -------------------------------------------------------------------

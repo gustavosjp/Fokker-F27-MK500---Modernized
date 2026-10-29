@@ -166,7 +166,7 @@ for (const t of [...new Set(textures)]) {
   const old = cfgFile ? [...readFileSync(join(dir, cfgFile), 'utf8').matchAll(/^fallback\.\d+\s*=\s*(.+?)\s*$/gm)].map((m) => m[1]) : [];
   let chain;
   if (old.length && old[0].startsWith('..\\..\\')) {
-    // a livery of another package (tools\wt21-liveries.json): its folder first, then his folders as the liveries themselves use them
+    // a livery of another package (a build that baked one in; Add-Liveries.ps1 now writes the same chain on each machine): its folder first, then his folders as the liveries themselves use them
     chain = [old[0], '..\\texture.common', `${TO_AUTHOR}\\texture.vcen`, `${TO_AUTHOR}\\texture`, `${TO_AUTHOR}\\texture.common`];
   } else {
     if (!existsSync(join(authorSim, `texture.${t}`))) fail(`texture.${t}: neither a livery nor one of his texture folders`);
