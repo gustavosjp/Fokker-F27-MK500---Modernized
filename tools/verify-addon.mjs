@@ -42,6 +42,10 @@ check(`${blocks.length} variations, titles unique and none of his`, new Set(titl
 for (const b of blocks) {
   const [m, p, t] = [field(b, 'model'), field(b, 'panel'), field(b, 'texture')];
   check(`${field(b, 'title')}: model.${m}, panel.${p}, texture.${t} are ours`, existsSync(join(sim, `model.${m}`, 'model.CFG')) && existsSync(join(sim, `panel.${p}`, 'panel.cfg')) && existsSync(join(sim, `texture.${t}`, 'texture.cfg')));
+  // the sound is named, not inherited: MSFS 2024 did not inherit his sound folder for our variations (make-addon.mjs, step 4)
+  const s = field(b, 'sound');
+  const soundDirs = s.startsWith('\\') ? resolveFrom(join(sim, 'sound.'), s) : [join(sim, s ? `sound.${s}` : 'sound')].filter((d) => existsSync(d));
+  check(`${field(b, 'title')}: sound "${s}" is a folder with sound.xml`, soundDirs.some((d) => existsSync(join(d, 'sound.xml'))), `(none of ours: name his, "\\..\\..\\${AUTHOR_SIM}\\sound")`);
 }
 
 console.log('texture fallbacks');

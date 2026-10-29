@@ -91,7 +91,7 @@ no próprio tablet.
 ### Instalação
 
 1. Instale o F27-500 v2 do bgaurant.
-2. Baixe o `bgt-f27500-modernized-v11.3.zip` em
+2. Baixe o `bgt-f27500-modernized-v11.4.zip` em
    [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) e extraia a pasta
    `bgt-f27500-modernized` dentro da pasta Community do MSFS 2024. O `Add-Liveries.ps1` do zip fica fora da Community.
 3. No simulador, escolha "Fokker F27500 Modernized it80" na lista de aviões.
@@ -243,7 +243,7 @@ can be picked from the tablet itself.
 ### Installation
 
 1. Install bgaurant's F27-500 v2.
-2. Download `bgt-f27500-modernized-v11.3.zip` from
+2. Download `bgt-f27500-modernized-v11.4.zip` from
    [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) and extract the
    `bgt-f27500-modernized` folder into the MSFS 2024 Community folder. The zip's `Add-Liveries.ps1` stays outside Community.
 3. In the simulator, pick "Fokker F27500 Modernized it80" in the aircraft list.
