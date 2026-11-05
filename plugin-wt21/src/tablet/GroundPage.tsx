@@ -196,7 +196,7 @@ export class GroundPage extends DisplayComponent<TabletProps & { open: (app: App
             </div>
             <div class={{ hidden: MappedSubject.create(([gsx, md]) => !gsx || md !== 'push', m.gsx, mode) }}>
               <div class="push-btns">
-                {pushBtn(m.lang.map(() => `☰ ${i18n.now('gsxMenu')}`), () => m.gsxMenu(), 'primary')}
+                {pushBtn(m.lang.map(() => i18n.now('gsxMenu')), () => m.gsxMenu(), 'primary')}
               </div>
               <div class="note">{i18n.t('gsxHint')}</div>
             </div>

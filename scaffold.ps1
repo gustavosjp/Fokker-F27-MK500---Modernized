@@ -67,10 +67,18 @@ Remove-Item "$simDst\panel" -Recurse -Force
 Edit-Text "$simDst\Checklist\${oldSim}Checklist.xml" { param($t) $t.Replace("Airplanes\\$oldSim\\", "Airplanes\\$newSim\\") }
 # v10 (test 12: "o YD não liga"): the author's yaw damper gain is 0, which the sim takes as "no yaw damper", so YAW_DAMPER_TOGGLE never
 # turned it on (the original cockpit has no YD switch). Both variations have a YD key now. 1.0 is the usual value.
+# v11.6 (hand flying, "o avião fica dançando" until the YD was switched off): 1.0 over-corrects on this aircraft (the author's rudder_effectiveness is 2), so 0.4.
+# v11.5 (a user: "the default 22 degrees make the A/P overshoot the courses all the time"): the WT21 autopilot's lateral directors take the
+# sim's AUTOPILOT MAX BANK, i.e. max_bank here; 30 as he set it.
 Edit-Text "$simDst\systems.cfg" {
     param($t)
     if ($t -notmatch '(?m)^yaw_damper_gain = 0\s*$') { throw 'systems.cfg: yaw_damper_gain = 0 not found' }
-    $t -replace '(?m)^yaw_damper_gain = 0(\s*)$', 'yaw_damper_gain = 1.0$1'
+    if ($t -notmatch '(?m)^max_bank = 22\s*$') { throw 'systems.cfg: max_bank = 22 not found' }
+    # v11.6 (recorded flight with the standalone package): the autopilot trims the elevator only (pitch_use_trim = 1) and the elevator trim sat
+    # at its stop (-1.000) for the whole descent with the nose "lost" in the turns; the author's own newer systems.cfg (his zz-bgt-f27500-v2
+    # texture pack ships one) has pitch_use_trim = 0, so the autopilot works the elevator itself
+    if ($t -notmatch '(?m)^pitch_use_trim = 1\s*$') { throw 'systems.cfg: pitch_use_trim = 1 not found' }
+    (($t -replace '(?m)^yaw_damper_gain = 0(\s*)$', 'yaw_damper_gain = 0.4$1') -replace '(?m)^max_bank = 22(\s*)$', 'max_bank = 30$1') -replace '(?m)^pitch_use_trim = 1(\s*)$', 'pitch_use_trim = 0$1'
 }
 
 # --- 3. aircraft.cfg: shared header + the Modernized variation (+ one per livery, + Classic on request) ----------------
@@ -274,6 +282,18 @@ $wt21Panel += @'
 		<Plugin>coui://html_ui/Pages/VCockpit/Instruments/F27WT21/Plugins/F27MfdPlugin.js</Plugin>
 	</Instrument>
 	<Instrument><Name>WT21_FMC_1</Name><Electric><Simvar name="CIRCUIT ON:17" unit="Bool"/></Electric></Instrument>
+	<!-- v11.5 (a user: "Link the Proline attitude to the electrical bus, not the vacuum pump"): WT21's AHRS reads the sim's attitude
+	     indicator of the same index by default, and the author's cockpit.cfg has attitude_indicator.0 = 1 (vacuum, his own horizon) and
+	     attitude_indicator.1 = 2 (electric). Both AHRS take the electric one (index 2). Once <Sensors> is there WT21 reads every sensor
+	     from it, so the ADCs repeat its defaults, and <AOASystem/> must be present (without it the parser throws and falls back to all
+	     defaults). -->
+	<Sensors>
+		<Ahrs index="1" pfd-index="1" attitude-indicator="2" direction-indicator="1"/>
+		<Ahrs index="2" pfd-index="2" attitude-indicator="2" direction-indicator="2"/>
+		<Adc index="1" pfd-index="1" airspeed-indicator="1" altimeter="1"/>
+		<Adc index="2" pfd-index="2" airspeed-indicator="2" altimeter="2"/>
+		<AOASystem/>
+	</Sensors>
 </PlaneHTMLConfig>
 '@, $utf8)
 

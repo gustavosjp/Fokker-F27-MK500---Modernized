@@ -158,15 +158,25 @@ if (LAYOUT) {
   binChunks = [baseBin];
   binState = { length: baseBin.length };
   const texMaterials = new Map();
-  const texturedMaterial = (materialName, ddsName) => {
-    if (texMaterials.has(ddsName)) return texMaterials.get(ddsName);
-    if (gltf.materials.some((m) => m.name === materialName)) throw new Error(`material ${materialName} already exists`);
+  const ddsTexture = (ddsName) => {
     const imageIndex = gltf.images.length;
     gltf.images.push({ uri: ddsName, name: ddsName.replace(/\.PNG\.DDS$/i, '').toLowerCase(), extras: 'ASOBO_image_converted_meta' });
-    const textureIndex = gltf.textures.length;
     gltf.textures.push({ extensions: { MSFT_texture_dds: { source: imageIndex } } });
+    return gltf.textures.length - 1;
+  };
+  // compDds (v11.5): an occlusion/roughness/metallic map in the author's form (the same texture as occlusionTexture and
+  // metallicRoughnessTexture, factors left at 1); without it the material is matte at a flat roughness 0.7
+  const texturedMaterial = (materialName, ddsName, compDds = null) => {
+    if (texMaterials.has(ddsName)) return texMaterials.get(ddsName);
+    if (gltf.materials.some((m) => m.name === materialName)) throw new Error(`material ${materialName} already exists`);
+    const textureIndex = ddsTexture(ddsName);
     const index = gltf.materials.length;
-    gltf.materials.push({ name: materialName, pbrMetallicRoughness: { baseColorTexture: { index: textureIndex }, metallicFactor: 0, roughnessFactor: 0.7 } });
+    if (compDds) {
+      const compIndex = ddsTexture(compDds);
+      gltf.materials.push({ name: materialName, occlusionTexture: { index: compIndex }, pbrMetallicRoughness: { baseColorTexture: { index: textureIndex }, metallicRoughnessTexture: { index: compIndex } } });
+    } else {
+      gltf.materials.push({ name: materialName, pbrMetallicRoughness: { baseColorTexture: { index: textureIndex }, metallicFactor: 0, roughnessFactor: 0.7 } });
+    }
     texMaterials.set(ddsName, index);
     return index;
   };
@@ -226,7 +236,7 @@ if (LAYOUT) {
     }
   }
   const uvOf = (name, inset = 0) => HW.uvRect(atlas, atlas.cells[name].rect, inset);
-  const hwMaterial = texturedMaterial('F27_WT21_hw', 'F27WT21_HW.PNG.DDS');
+  const hwMaterial = texturedMaterial('F27_WT21_hw', 'F27WT21_HW.PNG.DDS', 'F27WT21_HW_COMP.PNG.DDS');
   // lit lamp bars of the autopilot keys: the same atlas as base colour AND emission (they point at the lampOn swatch); each lamp is
   // its own node, shown by its key's `lamp` expression (controls-xml.mjs)
   const atlasTexture = gltf.materials[hwMaterial].pbrMetallicRoughness.baseColorTexture.index;

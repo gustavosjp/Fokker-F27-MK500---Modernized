@@ -1,4 +1,6 @@
-import { EventBus, FSComponent, FsBaseInstrument, FsInstrument } from '@microsoft/msfs-sdk';
+import { EventBus, FSComponent, FsBaseInstrument, FsInstrument, KeyEventManager, KeyEvents } from '@microsoft/msfs-sdk';
+
+import { AT_ARM_KEY, AT_DISCONNECT_KEY } from './autothrottle';
 
 import { realCharts } from './charts';
 import { I18n } from './i18n';
@@ -30,12 +32,21 @@ class F27TabletInstrument implements FsInstrument {
   constructor(public readonly instrument: BaseInstrument) {
     // v10.8: panel.cfg's htmlgauge line says which variation it is in (?variant=classic: the author's cockpit, no FMS)
     const classic = /[?&]variant=classic\b/.test(instrument.getAttribute('Url') ?? '');
-    this.model = new TabletModel(realSim, { fetch: fetchOfp, send: (ofp, progress) => sendOfpToFms(ofp, this.bus, progress) },
+    this.model = new TabletModel(realSim, { fetch: fetchOfp, send: (ofp, progress, procs) => sendOfpToFms(ofp, this.bus, progress, procs) },
       realCharts, realWeather(this.bus), classic);
     this.map = createSimMap(this.bus, this.model.ofp.map((o) => (o ? o.fixes : [])));
     const root = instrument.querySelector('#F27TabletRoot') as HTMLElement;
     FSComponent.render(<TabletApp model={this.model} i18n={new I18n(this.model.lang)} map={this.map} />, root);
     this.model.update();
+    // v11.6 (test: after a disconnect "não teve como ligar ele de novo"): a joystick button bound to the sim's autothrottle arm /
+    // disconnect events works the tablet's autothrottle (the aircraft has no sim autothrottle, so nothing else takes them)
+    if (!this.model.classic) {
+      void KeyEventManager.getManager(this.bus).then((keys) => {
+        keys.interceptKey(AT_ARM_KEY, false);
+        keys.interceptKey(AT_DISCONNECT_KEY, false);
+        this.bus.getSubscriber<KeyEvents>().on('key_intercept').handle(({ key }) => this.model.autothrottle.onKey(key));
+      });
+    }
   }
 
   /** Polls the aircraft four times a second; the TAPIR layer, the map and the pull (v10.12) run every frame. */
@@ -43,6 +54,8 @@ class F27TabletInstrument implements FsInstrument {
     const now = Date.now();
     this.map.update(now);
     this.model.pull.update(now);
+    this.model.autothrottle.update(now);
+    this.model.yawDamper.update(now);
     if (!this.model.classic && this.model.cockpit.get() === 'classic') {
       this.tapir.update(now);
       this.tapirActive = true;

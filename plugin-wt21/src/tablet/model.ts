@@ -3,7 +3,9 @@ import { MappedSubject, Subject, Subscribable } from '@microsoft/msfs-sdk';
 import { ChartSource, ChartsModel } from './charts';
 import { ChecklistState } from './checklist';
 import { Lang, LANGUAGES } from './i18n';
+import { Autothrottle } from './autothrottle';
 import { PullTug } from './pull';
+import { YawDamper } from './yawdamper';
 import { SimBridge } from './sim';
 import { DEFAULT_PAX_KG, Loader, LoadMode, MAX_CARGO_KG, SEATS } from './loading';
 import { Ofp, OfpError, SendResult } from './simbrief';
@@ -20,7 +22,7 @@ export type Cockpit = 'modern' | 'classic';
 /** Where OFPs come from and go: the SimBrief API and the sim's flight plan route manager (a fake one in the browser preview). */
 export interface FlightPlanService {
   fetch(user: string): Promise<Ofp>;
-  send(ofp: Ofp, progress: (done: number, total: number) => void): Promise<SendResult>;
+  send(ofp: Ofp, progress: (done: number, total: number) => void, useProcedures: boolean): Promise<SendResult>;
 }
 
 export type OfpState = 'idle' | 'loading' | 'loaded' | 'error';
@@ -46,6 +48,8 @@ export class TabletModel {
   /** English until the pilot picks another (v10.3, user: "idioma default do tablet deve ser inglês"). */
   public readonly lang = Subject.create<Lang>('en');
   public readonly brightness = Subject.create(0.85);
+  /** v11.5: what the band at the top of the MFD shows, engines or fuel (L:F27_MFD_TOP, read by the MFD plugin). */
+  public readonly mfdTop = Subject.create<'eng' | 'fuel'>('eng');
   public readonly screenOn = Subject.create(true);
   /**
    * v10.9 (user: "ter opção de escolha Classic vs Modernized dentro do Tablet"): written to L:F27_COCKPIT_CLASSIC, on which the
@@ -140,6 +144,10 @@ export class TabletModel {
   public readonly sendState = Subject.create<SendState>('idle');
   public readonly sendProgress = Subject.create<[number, number]>([0, 0]);
   public readonly sendResult = Subject.create<SendResult | null>(null);
+  /** Why the last send failed ('' = no failure). */
+  public readonly sendError = Subject.create('');
+  /** v11.6: send the SID / STAR as procedures (their altitude constraints reach the FMS) or as plain points. */
+  public readonly useProcs = Subject.create(true);
 
   /** Whose METAR Home shows: the pilot's pick once an OFP is loaded, else the nearest airport on the ground and the destination in flight. */
   public readonly wxSource = MappedSubject.create(([pick, ground, ofp]): WxSource => {
@@ -157,6 +165,10 @@ export class TabletModel {
   public readonly loader: Loader;
   /** v10.12: the tablet pulling the aircraft forward (Ground page, Pull), worked every frame by the tablet instrument. */
   public readonly pull: PullTug;
+  /** v11.6: the optional autothrottle, armed in Settings. */
+  public readonly autothrottle: Autothrottle;
+  /** v11.6: the software yaw damper (the FCP's YD key), worked every frame by the tablet instrument. */
+  public readonly yawDamper: YawDamper;
   public readonly planPax = Subject.create(0);
   public readonly planCargoLb = Subject.create(0);
   public readonly planFuelLb = Subject.create(0);
@@ -181,6 +193,12 @@ export class TabletModel {
     public readonly classic = false) {
     this.loader = new Loader(sim);
     this.pull = new PullTug(sim);
+    this.yawDamper = new YawDamper(sim);
+    this.autothrottle = new Autothrottle(sim);
+    this.autothrottle.armed.set(sim.load('F27TAB_at') === 'on');
+    this.autothrottle.armed.sub((a) => sim.save('F27TAB_at', a ? 'on' : 'off'));
+    this.useProcs.set(sim.load('F27TAB_procs') !== 'off');
+    this.useProcs.sub((on) => sim.save('F27TAB_procs', on ? 'on' : 'off'));
     this.checklist = new ChecklistState(sim);
     this.charts = new ChartsModel(charts);
     this.systems = Subject.create(readSystems(sim));
@@ -211,6 +229,13 @@ export class TabletModel {
     this.units.sub((u) => sim.save('F27TAB_units', u));
     this.lang.sub((l) => sim.save('F27TAB_lang', l));
     this.brightness.sub((b) => sim.save('F27TAB_brightness', b.toFixed(2)));
+    if (sim.load('F27TAB_mfdtop') === 'fuel') {
+      this.mfdTop.set('fuel');
+    }
+    this.mfdTop.sub((t) => {
+      sim.save('F27TAB_mfdtop', t);
+      sim.set('L:F27_MFD_TOP', 'number', t === 'fuel' ? 1 : 0);
+    }, true);
     this.noFms = this.cockpit.map((c) => classic || c === 'classic');
     if (!classic) {
       if (sim.load('F27TAB_cockpit') === 'classic') {
@@ -613,9 +638,12 @@ export class TabletModel {
     }
     this.sendState.set('sending');
     try {
-      this.sendResult.set(await this.plans.send(ofp, (done, total) => this.sendProgress.set([done, total])));
+      this.sendError.set('');
+      this.sendResult.set(await this.plans.send(ofp, (done, total) => this.sendProgress.set([done, total]), this.useProcs.get()));
       this.sendState.set('sent');
     } catch (e) {
+      console.error('F27 tablet: sending the route failed', e);
+      this.sendError.set(e instanceof Error ? e.message : String(e));
       this.sendState.set('error');
     }
   }

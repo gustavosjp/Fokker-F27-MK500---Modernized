@@ -6,7 +6,7 @@ import { GroundPage } from './GroundPage';
 import { HomePage } from './HomePage';
 import { I18n, Lang, LANGUAGES, StringKey } from './i18n';
 import { TabletMap } from './map';
-import { TabletModel } from './model';
+import { TabletModel, WeightUnit } from './model';
 import { SystemsPage } from './SystemsPage';
 import { AppId, Card, hhmm, KeyboardFn, onTap, TabletProps } from './ui';
 import { WeightsPage } from './WeightsPage';
@@ -122,7 +122,7 @@ class SettingsPage extends DisplayComponent<TabletProps> {
           <div class="select-wrap">
             <div ref={this.langRef} class={{ select: true, open: this.langOpen }}>
               <span class="select-value">{m.lang.map((l) => LANGUAGES.find((x) => x.id === l)?.name ?? l)}</span>
-              <span class="select-caret">{this.langOpen.map((o) => (o ? '▴' : '▾'))}</span>
+              <span class={this.langOpen.map((o) => (o ? 'select-caret up' : 'select-caret'))} />
             </div>
             <div class={{ 'select-list': true, hidden: this.langOpen.map((o) => !o) }}>
               {LANGUAGES.map((lang) => {
@@ -141,6 +141,17 @@ class SettingsPage extends DisplayComponent<TabletProps> {
             </div>
             <div class="dim-text">{i18n.t('cockpitHint')}</div>
             <div class={{ note: true, warn: true, hidden: this.cockpitRefused.map((r) => !r) }}>{i18n.t('cockpitGround')}</div>
+            <div class="card-title second">{i18n.t('mfdTop')}</div>
+            <div class="segmented">
+              {opt('eng', 'ENG', m.mfdTop.map((t) => t === 'eng'))}
+              {opt('fuel', 'FUEL', m.mfdTop.map((t) => t === 'fuel'))}
+            </div>
+            <div class="card-title second">{i18n.t('autothrottle')}</div>
+            <div class="segmented">
+              {opt('at-off', 'OFF', m.autothrottle.armed.map((a) => !a))}
+              {opt('at-on', 'ON', m.autothrottle.armed)}
+            </div>
+            <div class="dim-text">{MappedSubject.create(([md]) => i18n.now(md === 'disc' ? 'atDisc' : 'atHint'), m.autothrottle.mode, m.lang)}</div>
             <div class="card-title second">{i18n.t('about')}</div>
           </div>
           <div class="about">{i18n.t('aboutLine1')}</div>
@@ -168,6 +179,10 @@ class SettingsPage extends DisplayComponent<TabletProps> {
     onTap(this.stowBtn.instance, () => m.toggleStowed());
     onTap(this.seg.get('kg')!.instance, () => m.units.set('kg'));
     onTap(this.seg.get('lb')!.instance, () => m.units.set('lb'));
+    onTap(this.seg.get('eng')!.instance, () => m.mfdTop.set('eng'));
+    onTap(this.seg.get('fuel')!.instance, () => m.mfdTop.set('fuel'));
+    onTap(this.seg.get('at-off')!.instance, () => m.autothrottle.armed.set(false));
+    onTap(this.seg.get('at-on')!.instance, () => m.autothrottle.armed.set(true));
     for (const c of ['modern', 'classic'] as const) {
       onTap(this.seg.get(c)!.instance, () => {
         const ok = m.setCockpit(c);
@@ -224,7 +239,7 @@ class Keyboard extends DisplayComponent<ComponentProps & { i18n: I18n }> {
           {row('1234567890')}
           {row('QWERTYUIOP')}
           {row('ASDFGHJKL_')}
-          <div class="krow">{'ZXCVBNM.-'.split('').map((c) => key(c))}{key('BACK', '⌫', 'wide')}</div>
+          <div class="krow">{'ZXCVBNM.-'.split('').map((c) => key(c))}{key('BACK', 'DEL', 'wide')}</div>
           <div class="krow">{key('CANCEL', i18n.t('kbCancel'), 'act')}{key('OK', i18n.t('kbOk'), 'act primary')}</div>
         </div>
       </div>
@@ -255,6 +270,68 @@ type LoadedOfp = NonNullable<ReturnType<TabletModel['ofp']['get']>>;
 /** Flight: the latest SimBrief OFP (route, fuel, weights) and sending its route to the FMS. */
 class FlightPage extends DisplayComponent<TabletProps & { keyboard: (title: StringKey, value: string, done: (v: string) => void) => void }> {
   private readonly buttons: { act: () => void; ref: NodeReference<HTMLDivElement> }[] = [];
+  /** v11.5: the OFP over the page as SimBrief's PDF lays it out (its plan_html as text, in the sim's own RobotoMono), or its navlog as a
+   * table when the OFP came without the text; dragged up and down like a finger would, or paged with the arrows. */
+  private readonly planOpen = Subject.create(false);
+  private readonly plan = FSComponent.createRef<HTMLDivElement>();
+  private readonly navlog = FSComponent.createRef<HTMLDivElement>();
+  private readonly sheets = FSComponent.createRef<HTMLDivElement>();
+
+  private pagePlan(dir: number): void {
+    const el = this.plan.instance;
+    el.scrollTop += dir * el.clientHeight * 0.8;
+  }
+
+  /** The whole OFP in one scroll, as the PDF reads (user: "tem que ser em uma pagina so"), each of its pages a block of its own: one
+   * 900-line block came out cut short in the sim. Text and SimBrief's image URLs only, never html. */
+  private showOfp(o: LoadedOfp | null): void {
+    const box = this.sheets.instance;
+    box.innerHTML = '';
+    for (const p of o ? o.pages : []) {
+      const sheet = document.createElement('div');
+      sheet.className = 'sb-plan-sheet';
+      // one element per line and no-break spaces: the columns need neither <pre> nor white-space support from the sim's browser
+      for (const line of p.text.split('\n')) {
+        const row = document.createElement('div');
+        row.className = 'sb-plan-line';
+        row.textContent = line === '' ? ' ' : line.replace(/\t/g, '    ').replace(/ /g, ' ');
+        sheet.appendChild(row);
+      }
+      for (const src of p.images) {
+        const img = document.createElement('img');
+        img.src = src;
+        sheet.appendChild(img);
+      }
+      box.appendChild(sheet);
+    }
+    this.plan.instance.scrollTop = 0;
+  }
+
+  /** One row per navlog fix, written as text (nothing of SimBrief's goes in as html). */
+  private fillNavlog(o: LoadedOfp | null, units: WeightUnit, lang: Lang, empty: string): void {
+    const el = this.navlog.instance;
+    el.innerHTML = '';
+    const cell = (row: HTMLElement, text: string): void => { const s = document.createElement('span'); s.textContent = text; row.appendChild(s); };
+    const fixes = o ? o.fixes : [];
+    if (o && fixes.length === 0) {
+      const note = document.createElement('div');
+      note.className = 'sb-nav-empty';
+      note.textContent = empty;
+      el.appendChild(note);
+    }
+    for (const f of fixes) {
+      const row = document.createElement('div');
+      row.className = 'sb-nav-row';
+      cell(row, f.ident);
+      cell(row, f.via);
+      cell(row, f.altFt >= 5000 ? `FL${String(Math.round(f.altFt / 100)).padStart(3, '0')}` : f.altFt > 0 ? String(Math.round(f.altFt)) : '-');
+      cell(row, String(Math.round(f.legNm)));
+      cell(row, hhmm(f.totalSec));
+      cell(row, `${TabletModel.weight(f.fuelLb, units, lang)} ${units}`);
+      cell(row, f.windKt > 0 ? `${String(Math.round(f.windDir)).padStart(3, '0')}/${Math.round(f.windKt)}` : '-');
+      el.appendChild(row);
+    }
+  }
 
   /** @inheritdoc */
   public render(): VNode {
@@ -287,9 +364,11 @@ class FlightPage extends DisplayComponent<TabletProps & { keyboard: (title: Stri
       }
       if (st === 'sent' && r) {
         const coords = r.byCoordinates ? ` (${r.byCoordinates} ${i18n.now('sbByCoords')})` : '';
-        return `${i18n.now('sbSent')} ${r.legs} ${i18n.now('sbPoints')}${coords}. ${i18n.now('sbCheckFpln')}`;
+        const procs = r.procedures.length ? ` ${i18n.now('sbProcs')} ${r.procedures.join(', ')}.` : '';
+        const missing = r.missing.length ? ` ${r.missing.join(', ')}: ${i18n.now('sbMissingProc')}` : '';
+        return `${i18n.now('sbSent')} ${r.sent}, ${r.legs} ${i18n.now('sbPoints')}${coords}.${procs}${missing} ${i18n.now('sbCheckFpln')}`;
       }
-      return st === 'error' ? i18n.now('sbSendErr') : '';
+      return st === 'error' ? `${i18n.now('sbSendErr')} ${m.sendError.get()}` : '';
     }, m.sendState, m.sendProgress, m.sendResult, m.lang);
     const noOfp = m.ofp.map((o) => o === null);
     return (
@@ -331,11 +410,28 @@ class FlightPage extends DisplayComponent<TabletProps & { keyboard: (title: Stri
           </div>
           <div class="sb-bar">
             {button(i18n.t('sbSend'), () => void m.sendRoute(), m.noFms.map((n) => (n ? 'primary send hidden' : 'primary send')))}
+            {button(MappedSubject.create(([on]) => i18n.now(on ? 'sbProcOn' : 'sbProcOff'), m.useProcs, m.lang), () => m.useProcs.set(!m.useProcs.get()))}
+            {button(i18n.t('sbShowOfp'), () => { this.planOpen.set(true); this.plan.instance.scrollTop = 0; })}
             {button(i18n.t('sbRefetch'), () => void m.loadOfp())}
             {button(i18n.t('sbChangeUser'), askUser)}
           </div>
           <div class="sb-status">{MappedSubject.create(([a, b]) => b || a, status, sendText)}</div>
           <div class={{ 'sb-status': true, hidden: m.noFms.map((n) => !n) }}>{i18n.t('sbClassicNoFms')}</div>
+        </div>
+        <div class={{ 'sb-plan': true, hidden: this.planOpen.map((o) => !o) }}>
+          <div class="sb-plan-bar">
+            <div class="sb-plan-title">{ofp((o) => `OFP  ${o.callsign}  ${o.origin} → ${o.dest}`)}</div>
+            {button(Subject.create('▲'), () => this.pagePlan(-1))}
+            {button(Subject.create('▼'), () => this.pagePlan(1))}
+            {button(i18n.t('sbClose'), () => this.planOpen.set(false), 'primary')}
+          </div>
+          <div ref={this.plan} class="sb-plan-body">
+            <div ref={this.sheets} class={{ hidden: m.ofp.map((o) => !o || o.pages.length === 0) }} />
+            <div class={{ hidden: m.ofp.map((o) => !!o && o.pages.length > 0) }}>
+              <div class="sb-nav-row head"><span>FIX</span><span>AWY</span><span>ALT</span><span>DIST</span><span>ETE</span><span>FUEL</span><span>WIND</span></div>
+              <div ref={this.navlog} class="sb-nav" />
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -346,6 +442,21 @@ class FlightPage extends DisplayComponent<TabletProps & { keyboard: (title: Stri
     for (const { act, ref } of this.buttons) {
       onTap(ref.instance, act);
     }
+    const { model: m, i18n } = this.props;
+    MappedSubject.create(m.ofp, m.units, m.lang).sub(([o, u, l]) => this.fillNavlog(o, u, l, i18n.now('sbNoPlanText')), true);
+    m.ofp.sub((o) => this.showOfp(o), true);
+    // a click held on the 3D screen and moved scrolls the list, as a finger would
+    const el = this.plan.instance;
+    let y: number | null = null;
+    el.addEventListener('mousedown', (e) => { y = (e as MouseEvent).clientY; });
+    el.addEventListener('mousemove', (e) => {
+      if (y !== null) {
+        el.scrollTop -= (e as MouseEvent).clientY - y;
+        y = (e as MouseEvent).clientY;
+      }
+    });
+    el.addEventListener('mouseup', () => { y = null; });
+    el.addEventListener('mouseleave', () => { y = null; });
   }
 }
 
@@ -401,7 +512,7 @@ class ChecklistPage extends DisplayComponent<TabletProps> {
                 this.slotRefs[k] = ref;
                 return (
                   <div ref={ref} class={{ clrow: true, ticked: sl.ticked, hidden: sl.shown.map((v) => !v) }}>
-                    <div class="clbox">{sl.ticked.map((t) => (t ? '✓' : ''))}</div>
+                    <div class="clbox" />
                     <div class="clitem">{sl.item}</div>
                     <div class={{ clauto: true, hidden: sl.auto.map((a) => !a) }}>AUTO</div>
                     <div class="claction">{sl.action}</div>
@@ -628,7 +739,7 @@ class ChartsPage extends DisplayComponent<TabletProps & {
             {button('+', () => this.zoomBy(1.25), 'chsm')}
             <div class={{ chgroup: true, hidden: this.mapMode }}>
               {button(i18n.t('chFit'), () => this.fit())}
-              <div class={{ chshipbtn: true, hidden: this.shipOn.map((v) => !v) }}>{button('✈', () => this.centreOnShip(), 'chsm')}</div>
+              <div class={{ chshipbtn: true, hidden: this.shipOn.map((v) => !v) }}>{button('AC', () => this.centreOnShip(), 'chsm')}</div>
               <div class={{ chnight: true, hidden: noNight }}>
                 {button(MappedSubject.create(([n]) => i18n.now(n ? 'chDay' : 'chNight'), ch.night, m.lang), () => ch.toggleNight())}
               </div>

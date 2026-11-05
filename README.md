@@ -14,7 +14,7 @@ lista como um avião à parte ("Fokker F27500 Modernized …"). O F27 original c
 no próprio tablet.
 
 > **Download:** o pacote pronto para instalar está em
-> [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) (`bgt-f27500-modernized-v11.4.zip`).
+> [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) (`bgt-f27500-modernized-v11.5.zip`).
 > Relatos de problemas são bem-vindos em *Issues*.
 
 ### Requisitos
@@ -33,18 +33,26 @@ no próprio tablet.
 2. Radioaltímetro, RMI e OAT originais numa coluna ao lado do PFD. Os relógios de motor e os instrumentos do copiloto originais
    continuam.
 3. Faixa de motores dos Rolls-Royce Dart no MFD: torque, rpm, TGT, fluxo de combustível, pressão e temperatura do óleo. As cores
-   seguem os limites do manual de manutenção do F27 (Dart RDa.7).
+   seguem os limites do manual de manutenção do F27 (Dart RDa.7). Em Ajustes do tablet dá para trocar a faixa por **FUEL**: tanques
+   principais e coletores, fluxo e consumo, em kg ou lb.
 4. Painel de piloto automático estilo CJ4 (FCP) no glareshield:
    - teclas NAV, HDG, APPR, BC, FLC, VS, ALT, UP/DN, AP, FD e YD, com luzes de modo;
    - botões HDG, ALT, SPD, CRS 1 e CRS 2. Apertar o HDG sincroniza na proa atual, o CRS aponta direto para a estação, e o SPD pega a
-     velocidade atual. O SPD gira a velocidade do FLC.
+     velocidade atual. O SPD gira a velocidade do FLC;
+   - teclas **VNAV** (VFLC, ALTV e PATH do WT21) e **A/T** (autothrottle), cada uma com a sua luz.
 5. Painel de controle das telas (DCP) com botões duplos MENU/DATA, RANGE/TILT e BARO.
 6. Teclas na moldura do MFD e botão duplo MENU/DATA. Apertar o centro seleciona a opção.
 7. CDU do FMS no pedestal, com teclado completo (67 teclas).
-8. Hardware 3D no estilo do CJ4: teclas que afundam ao clicar, botões que giram e barras de luz nas teclas ativas.
+8. Hardware 3D no estilo do CJ4: teclas que afundam ao clicar, botões que giram e barras de luz nas teclas ativas. Texturas de
+   4096 px com mapa de rugosidade e oclusão: legendas nítidas, teclas chanfradas, lâmpadas com lente de vidro e botões usinados.
 9. Interruptores dos servos do piloto automático (DIR, ROULIS, PROF, TRIM) num painel próprio, onde ficava o piloto automático antigo.
 10. Piloto automático e FMS da Working Title voando o F27. A lógica do piloto automático TAPIR original fica desligada nessa variação.
-11. Yaw damper funcionando e diretor de voo (FD).
+    - **Autothrottle opcional** (Ajustes do tablet, tecla A/T ou um botão do joystick ligado a "Autothrottle Arm"): segura a
+      velocidade do botão SPD; no FLC usa potência de subida (CLB) ou marcha lenta (IDLE). A faixa do MFD mostra A/T SPD, CLB, IDLE ou
+      DISC. Mover uma manete desliga. O PFD mostra a velocidade selecionada também fora do FLC enquanto o A/T está ligado.
+11. Diretor de voo (FD) e **yaw damper por software** (tecla YD): o tablet amortece a guinada e, com o piloto automático ligado, tira a
+    derrapagem constante, tudo com o trim de leme (soma com os seus pedais e devolve o trim ao desligar). É assim porque o MSFS usa o
+    `systems.cfg` do autor, onde o yaw damper do simulador não funciona. Experimental.
 12. Aviônicos ligados ao circuito de instrumentos do avião: apagados com o avião frio e escuro.
 
 **Cockpit Classic**
@@ -56,7 +64,11 @@ no próprio tablet.
 
 15. Tablet 3D num braço que dobra contra a parede (clique na moldura).
 16. Tela inicial com apps, hora UTC e local, português ou inglês, kg ou lb, brilho.
-17. **Voo:** importação do OFP do SimBrief e envio da rota ao FMS.
+17. **Voo:**
+    - importação do OFP do SimBrief, que pode ser lido no tablet numa página só, como o PDF;
+    - envio da rota ao FMS: a SID e a STAR vão como procedimento, com as restrições de altitude, quando o banco do simulador tem
+      aquele nome; o tablet diz o que foi como procedimento e o que não existe no banco. A chave "SID/STAR: procedimento/pontos" manda
+      os pontos soltos, como antes.
 18. **Cartas:**
     - cartas LIDO e FAA do próprio simulador (aeroporto, saídas, chegadas, aproximações), com zoom, arrastar, modo noturno e tela
       cheia;
@@ -91,7 +103,7 @@ no próprio tablet.
 ### Instalação
 
 1. Instale o F27-500 v2 do bgaurant.
-2. Baixe o `bgt-f27500-modernized-v11.4.zip` em
+2. Baixe o `bgt-f27500-modernized-v11.5.zip` em
    [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) e extraia a pasta
    `bgt-f27500-modernized` dentro da pasta Community do MSFS 2024. O `Add-Liveries.ps1` do zip fica fora da Community.
 3. No simulador, escolha "Fokker F27500 Modernized it80" na lista de aviões.
@@ -141,7 +153,21 @@ gerados a partir dos dele e vão no pacote com a autorização dele:
 - **WASM de sistemas:** cópia do módulo dele com os eventos de modo e de servo do piloto automático TAPIR e a regra GPU→escadas
   desligados.
 - **Modelos:** o JSON dos modelos 3D (a cena dele com as nossas peças) e o XML do exterior. A geometria continua lida do pacote dele.
-- **Configurações:** `panel.cfg` (os instrumentos dele mais os nossos), `model.CFG` e `systems.cfg` (o ganho do yaw damper vai a 1,0).
+- **Configurações:** `panel.cfg` (os instrumentos dele mais os nossos), `model.CFG` e `systems.cfg` (ganho do yaw damper, limite de
+  inclinação e ajuste do piloto automático; hoje o MSFS 2024 lê o `systems.cfg` do autor no lugar deste, veja "Limites conhecidos").
+
+### Limites conhecidos
+
+Num add-on com `base_container`, o MSFS 2024 lê o `systems.cfg` **do pacote do autor**, não o do add-on. Por isso, com o pacote do autor
+como ele é:
+
+- o yaw damper do simulador (ganho 0 no arquivo dele) não liga: o mod amortece a guinada por software pela tecla YD;
+- o limite de inclinação do piloto automático fica em 22°;
+- o piloto automático ajusta só o trim do profundor, que pode encostar no limite em curvas e descidas longas.
+
+Opcional, por sua conta: no `systems.cfg` do **seu** `bgt-f27500-v2` (pasta `SimObjects\Airplanes\Bgt_F27500v2`), `yaw_damper_gain = 0.4`
+liga o yaw damper do simulador (o do mod passa a ficar parado) e `max_bank = 30` sobe o limite de inclinação. Uma atualização do
+pacote dele desfaz a mudança. Este repositório não altera nem distribui o arquivo dele.
 
 ### Créditos e licenças
 
@@ -152,7 +178,6 @@ gerados a partir dos dele e vão no pacote com a autorização dele:
   alteração no código; só a pasta foi renomeada (`WT21v2` → `F27WT21`), e o MFD recebe o nosso plugin pela API de plugins do WT21.
 - **Pinturas e texturas 4K:** de cada autor (por exemplo Carlos Peroni, RE Liveries). Não estão incluídas: o `Add-Liveries.ps1` só aponta para as que você instalou.
 - **GSX Pro:** FSDreamTeam. Não está incluído; a integração usa as variáveis documentadas do GSX.
-- **Fonte DejaVu Sans:** [licenses/DejaVu-LICENSE.txt](licenses/DejaVu-LICENSE.txt).
 - **Código deste repositório:** licença MIT ([LICENSE](LICENSE)). Os componentes de terceiros mantêm as licenças deles
   ([THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)).
 
@@ -168,7 +193,7 @@ the aircraft list as a separate aircraft ("Fokker F27500 Modernized …"). The o
 can be picked from the tablet itself.
 
 > **Download:** the ready-to-install package is in
-> [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) (`bgt-f27500-modernized-v11.4.zip`).
+> [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) (`bgt-f27500-modernized-v11.5.zip`).
 > Bug reports are welcome in *Issues*.
 
 ### Requirements
@@ -186,18 +211,26 @@ can be picked from the tablet itself.
 1. Working Title WT21 PFD and MFD in portrait on the captain's side, fitted to the original panel with a 3D bezel.
 2. The original radio altimeter, RMI and OAT in a column beside the PFD. The original engine gauges and copilot instruments stay.
 3. Rolls-Royce Dart engine band on the MFD: torque, rpm, TGT, fuel flow, oil pressure and temperature. The colours follow the limits
-   of the F27 maintenance manual (Dart RDa.7).
+   of the F27 maintenance manual (Dart RDa.7). In the tablet's Settings the band can be switched to **FUEL**: main and collector
+   tanks, flow and used, in kg or lb.
 4. CJ4-style autopilot panel (FCP) on the glareshield:
    - NAV, HDG, APPR, BC, FLC, VS, ALT, UP/DN, AP, FD and YD keys with mode lights;
    - HDG, ALT, SPD, CRS 1 and CRS 2 knobs. Pushing HDG syncs to the current heading, CRS points straight to the station, and SPD takes
-     the current speed. SPD turns the FLC speed.
+     the current speed. SPD turns the FLC speed;
+   - **VNAV** (the WT21's VFLC, ALTV and PATH) and **A/T** (autothrottle) keys, each with its own light.
 5. Display control panel (DCP) with MENU/DATA, RANGE/TILT and BARO dual knobs.
 6. MFD bezel keys and a MENU/DATA dual knob. Pushing the centre selects.
 7. FMS CDU on the pedestal with a full keypad (67 keys).
-8. CJ4-style 3D hardware: keys that sink when clicked, knobs that turn, light bars on active keys.
+8. CJ4-style 3D hardware: keys that sink when clicked, knobs that turn, light bars on active keys. 4096 px textures with a roughness
+   and occlusion map: sharp legends, bevelled keys, glass lamp lenses and machined knobs.
 9. The autopilot servo switches (DIR, ROULIS, PROF, TRIM) on a panel of their own, where the old autopilot was.
 10. The Working Title autopilot and FMS fly the F27. The original TAPIR autopilot logic is turned off in this variation.
-11. Working yaw damper and flight director (FD).
+    - **Optional autothrottle** (tablet Settings, the A/T key, or a joystick button bound to "Autothrottle Arm"): holds the speed of the
+      SPD knob; in FLC it uses climb power (CLB) or idle (IDLE). The MFD band shows A/T SPD, CLB, IDLE or DISC. Moving a lever
+      disconnects it. The PFD shows the selected speed outside FLC too while the A/T is on.
+11. Flight director (FD) and a **software yaw damper** (YD key): the tablet damps the yaw and, with the autopilot on, trims the steady
+    sideslip away, all through the rudder trim (it adds to your pedals and gives the trim back when it stops). It works this way
+    because MSFS reads the author's `systems.cfg`, where the simulator's own yaw damper does not work. Experimental.
 12. Avionics on the aircraft's instrument circuit: dark when the aircraft is cold and dark.
 
 **Classic cockpit**
@@ -209,7 +242,11 @@ can be picked from the tablet itself.
 
 15. A 3D tablet on an arm that folds against the side wall (click the bezel).
 16. Home screen with apps, UTC and local time, Portuguese or English, kg or lb, brightness.
-17. **Flight:** SimBrief OFP import and route upload to the FMS.
+17. **Flight:**
+    - SimBrief OFP import, which can be read on the tablet as one continuous page, like the PDF;
+    - route upload to the FMS: the SID and STAR go as procedures, with their altitude constraints, when the simulator's database has
+      that name; the tablet says what went as a procedure and what is missing from the database. The "SID/STAR: procedure/points"
+      switch sends plain points, as before.
 18. **Charts:**
     - the simulator's own LIDO and FAA charts (airport, departures, arrivals, approaches), with zoom, drag, night mode and full
       screen;
@@ -243,7 +280,7 @@ can be picked from the tablet itself.
 ### Installation
 
 1. Install bgaurant's F27-500 v2.
-2. Download `bgt-f27500-modernized-v11.4.zip` from
+2. Download `bgt-f27500-modernized-v11.5.zip` from
    [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) and extract the
    `bgt-f27500-modernized` folder into the MSFS 2024 Community folder. The zip's `Add-Liveries.ps1` stays outside Community.
 3. In the simulator, pick "Fokker F27500 Modernized it80" in the aircraft list.
@@ -293,7 +330,21 @@ generated from his and ship with his permission:
 
 - **Systems WASM:** a copy of his module with the TAPIR autopilot mode and servo events and the GPU→stairs rule turned off.
 - **Models:** the JSON of the 3D models (his scene with our parts) and the exterior XML. The geometry is still read from his package.
-- **Configuration:** `panel.cfg` (his instruments plus ours), `model.CFG` and `systems.cfg` (yaw damper gain set to 1.0).
+- **Configuration:** `panel.cfg` (his instruments plus ours), `model.CFG` and `systems.cfg` (yaw damper gain, bank limit and autopilot
+  pitch setting; MSFS 2024 currently reads the author's `systems.cfg` instead of this one, see "Known limits").
+
+### Known limits
+
+In an add-on with `base_container`, MSFS 2024 reads the `systems.cfg` **of the author's package**, not the add-on's. So, with the
+author's package as it is:
+
+- the simulator's yaw damper (gain 0 in his file) does not engage: the mod damps the yaw in software through the YD key;
+- the autopilot bank limit stays at 22°;
+- the autopilot works only the elevator trim, which can reach its stop in long turns and descents.
+
+Optional, at your own discretion: in the `systems.cfg` of **your** `bgt-f27500-v2` (folder `SimObjects\Airplanes\Bgt_F27500v2`),
+`yaw_damper_gain = 0.4` turns on the simulator's yaw damper (the mod's then stands by) and `max_bank = 30` raises the bank limit. An
+update of his package undoes the change. This repository neither changes nor distributes his file.
 
 ### Credits and licenses
 
@@ -305,7 +356,6 @@ generated from his and ship with his permission:
   plugin API.
 - **Liveries and 4K textures:** by each author (for example Carlos Peroni, RE Liveries). Not included: `Add-Liveries.ps1` only points to the ones you installed.
 - **GSX Pro:** FSDreamTeam. Not included; the integration uses GSX's documented variables.
-- **DejaVu Sans font:** [licenses/DejaVu-LICENSE.txt](licenses/DejaVu-LICENSE.txt).
 - **This repository's code:** MIT license ([LICENSE](LICENSE)). Third-party components keep their own licenses
   ([THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)).
 

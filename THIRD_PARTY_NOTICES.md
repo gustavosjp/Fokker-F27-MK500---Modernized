@@ -14,12 +14,6 @@ Their license is MIT with an addendum: the software and any derivative works are
 Simulator**. Full text: [licenses/WorkingTitle-Microsoft-LICENSE.txt](licenses/WorkingTitle-Microsoft-LICENSE.txt). The built
 package carries the same text as `html_ui/Pages/VCockpit/Instruments/F27WT21/LICENSE-WorkingTitle.txt`.
 
-## DejaVu Sans
-
-The tablet uses `DejaVuSans-SemiBold.ttf`: Bitstream Vera copyright, DejaVu changes in the public domain, Arev glyphs by Tavmjong
-Bah. Full license, as embedded in the font: [licenses/DejaVu-LICENSE.txt](licenses/DejaVu-LICENSE.txt). The license also travels
-with the font as `plugin-wt21/tablet/DejaVu-LICENSE.txt`.
-
 ## Fokker F27-500 v2 — bgaurant
 
 Not included. The add-on requires the author's package (`bgt-f27500-v2`) and reads his models, textures, sounds and systems from it.

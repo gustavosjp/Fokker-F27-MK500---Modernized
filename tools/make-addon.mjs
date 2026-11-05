@@ -208,7 +208,7 @@ report.public = !!publicDir;
 
 // ---------- 6. what is still derived from his work ----------
 const derived = [
-  ['systems.cfg', 'his systems.cfg with yaw_damper_gain = 1.0 (his 0 means no yaw damper)'],
+  ['systems.cfg', 'his systems.cfg with yaw_damper_gain = 0.4 (his 0 means no yaw damper)'],
   ['panel.WT21/panel.cfg', "his panel.cfg's gauges with the WT21 screens and the tablet added"],
   ['model.wt21/model.CFG', "his model.CFG (KLN90B variant) pointing to our models"],
   ['model/F27500v2bgt_wt21.xml', 'his exterior XML with our chocks, covers and gear pins (his own behaviours inside)'],

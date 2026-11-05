@@ -5,7 +5,7 @@ import { I18n } from './i18n';
 import { createPreviewMap } from './map';
 import { TabletModel } from './model';
 import { SimBridge } from './sim';
-import { Ofp } from './simbrief';
+import { fetchOfp, Ofp } from './simbrief';
 import { WeatherSource } from './weather';
 import { TabletApp } from './TabletApp';
 
@@ -81,7 +81,20 @@ const sample: Ofp = {
   routeText: 'SCB UW58 PCX DCT', cruiseFt: 17000, distanceNm: 208, eteSec: 3900, aircraftIcao: 'F50', callsign: 'TAM3410',
   generatedSec: 0, fuelBlockLb: 1950 * 2.20462, fuelTripLb: 1150 * 2.20462, fuelReserveLb: 420 * 2.20462, fuelAltnLb: 260 * 2.20462,
   zfwLb: 17300 * 2.20462, towLb: 19180 * 2.20462, ldwLb: 18030 * 2.20462, pax: 40, paxWeightLb: 84 * 2.20462,
-  payloadLb: (40 * 84 + 520) * 2.20462, fixes: [],
+  payloadLb: (40 * 84 + 520) * 2.20462, sid: '', sidTrans: '', star: '', starTrans: '',
+  // a long navlog, to see the viewer scroll
+  fixes: Array.from({ length: 30 }, (_, i) => ({
+    ident: i === 0 ? 'SCB' : i === 29 ? 'SBRJ' : `FIX${String(i).padStart(2, '0')}`, type: i === 29 ? 'apt' : 'wpt', via: i < 2 ? 'DCT' : 'UW58',
+    lat: -23.6 + i * 0.03, lon: -46.6 + i * 0.1, sidStar: false, altFt: Math.min(17000, 3000 + i * 2500, (29 - i) * 3000),
+    legNm: 7, totalSec: 130 * (i + 1), fuelLb: (1950 - i * 38) * 2.20462, windDir: 250, windKt: 12 + (i % 5),
+  })),
+  pages: [
+    { text: ['[ OFP ]', '', 'OPERATIONAL FLIGHT PLAN             TAM3410   F50   SBSP-SBRJ', '',
+      'FUEL PLANNING (KGS)       FUEL   TIME   CORR', 'TRIP  SBRJ                1150  01/05', 'CONT  5%                    58  00/05',
+      'ALTN  SBGL                 260  00/14', 'FINRES                     420  00/30', 'BLOCK                     1950  01/59'].join('\n'), images: [] },
+    { text: Array.from({ length: 55 }, (_, i) => `FIX${String(i + 1).padStart(2, '0')}   UW58   FL170   M029  ${String(250 + i).padStart(3, '0')}/012   ${String(7 * (i + 1)).padStart(3, ' ')}  ${String(1900 - i * 18).padStart(5, ' ')}`).join('\n'), images: [] },
+    { text: 'Route', images: ['https://www.simbrief.com/images/logo.png'] },
+  ],
 };
 // fake charts: a few per group, each page a drawn placeholder (the real ones come from the sim's chart listener)
 const FAKE_CHARTS: [ChartGroup, string, number][] = [
@@ -130,15 +143,18 @@ const fakeWeather: WeatherSource = {
     visM: 9999, cavok: false, tempC: 23, dewC: 14, qnhHpa: 1016, ceilingFt: 4500,
   }), 400)),
 };
+// ?simbrief=<username or Pilot ID>: the real latest OFP from SimBrief's public API, as the tablet fetches it in the sim; otherwise the sample
+const realUser = new URLSearchParams(window.location.search).get('simbrief');
 const model = new TabletModel(fake, {
-  fetch: (user) => new Promise((ok, fail) => window.setTimeout(() => (user === 'erro' ? fail(new Error('net')) : ok(sample)), 700)),
-  send: (_ofp, progress) => new Promise((ok) => {
+  fetch: (user) => (realUser ? fetchOfp(realUser)
+    : new Promise((ok, fail) => window.setTimeout(() => (user === 'erro' ? fail(new Error('net')) : ok(sample)), 700))),
+  send: (_ofp, progress, _procs) => new Promise((ok) => {
     let i = 0;
     const t = window.setInterval(() => {
       progress(++i, 6);
       if (i === 6) {
         window.clearInterval(t);
-        ok({ legs: 6, byCoordinates: 0 });
+        ok({ legs: 6, byCoordinates: 0, procedures: ['SID BAIA3B'], missing: ['STAR KOXU1A'], sent: 'SBSP 35L > SBRJ 02R' });
       }
     }, 200);
   }),

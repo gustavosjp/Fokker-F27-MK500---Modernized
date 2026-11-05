@@ -19,11 +19,11 @@ type EngineIndex = 1 | 2;
 interface EisRow {
   /** Label shown in the centre column. */
   label: string;
-  /** Unit shown under the label. */
+  /** Unit shown under the label ('W' and 'W/H' for a weight / a flow in the tablet's unit, kg or lb). */
   unit: string;
-  /** Value at the right end of the bar. */
-  max: number;
-  /** Reads the value for one engine. */
+  /** Value at the right end of the bar (for one engine / side). */
+  max: number | ((engine: EngineIndex) => number);
+  /** Reads the value for one engine (fuel page: 1 = left, 2 = right), weights in pounds. */
   read: (engine: EngineIndex) => number;
   /** The value's colour from the engine's state (always normal when absent). */
   level?: (s: DartState) => Level;
@@ -34,6 +34,27 @@ function sim(name: string, unit: string): number {
   const v = SimVar.GetSimVarValue(name, unit);
   return typeof v === 'number' && isFinite(v) ? v : 0;
 }
+
+declare function GetStoredData(key: string): string;
+const LB_PER_KG = 2.20462;
+
+/** v11.5: which page the band shows; the tablet's Settings write it (0 engines, 1 fuel). */
+export const MFD_TOP_VAR = 'L:F27_MFD_TOP';
+/** v11.6: the tablet's autothrottle mode, and how the band names it. */
+const AT_MODE_VAR = 'L:F27_AT_MODE';
+const AT_TEXT: Record<number, string> = { 1: 'A/T SPD', 2: 'A/T CLB', 3: 'A/T IDLE', 4: 'A/T DISC' };
+
+/** Fuel in one wing's tank in pounds: 1 / 2 the left / right main tank, 3 / 4 the collectors (as the tablet's Systems page reads them). */
+const tankLb = (n: number): number => sim(`FUELSYSTEM TANK QUANTITY:${n}`, 'gallons') * sim('FUEL WEIGHT PER GALLON', 'pounds');
+const tankCapLb = (n: number): number => Math.max(1, sim(`FUELSYSTEM TANK CAPACITY:${n}`, 'gallons') * sim('FUEL WEIGHT PER GALLON', 'pounds'));
+
+/** v11.5 (a user: the fuel gauges are "all the time hidden during the flight/cruise by the engines controls"): the fuel page. */
+const FUEL_ROWS: readonly EisRow[] = [
+  { label: 'MAIN', unit: 'W', max: (n) => tankCapLb(n), read: (n) => tankLb(n) },
+  { label: 'COLL', unit: 'W', max: (n) => tankCapLb(n + 2), read: (n) => tankLb(n + 2) },
+  { label: 'FF', unit: 'W/H', max: 1500, read: (n) => sim(`ENG FUEL FLOW PPH:${n}`, 'pounds per hour') },
+  { label: 'USED', unit: 'W', max: (n) => tankCapLb(n) + tankCapLb(n + 2), read: (n) => sim(`GENERAL ENG FUEL USED SINCE START:${n}`, 'pounds') },
+];
 
 const ROWS: readonly EisRow[] = [
   { label: 'TRQ', unit: 'PSI', max: DART.torqueGaugePsi, read: (n) => sim(`L:f275_xengtorq_${n}_ind`, 'number') },
@@ -80,9 +101,18 @@ export const F27_EIS_CSS = `
   column-gap: 10px;
 }
 .f27-eis-head { height: 21px; color: var(--wt21-colors-cyan, cyan); }
+/* v11.5: every head cell on row 1 (the centre one shares columns with the sides, and auto-placement put it on a second row, over the fuel rows) */
+.f27-eis-head > div { grid-row: 1; }
 .f27-eis-head .l { grid-column: 1 / 3; text-align: left; }
 .f27-eis-head .r { grid-column: 4 / 6; text-align: right; }
+.f27-eis-head .c { grid-column: 2 / 5; text-align: center; color: var(--wt21-colors-white, white); }
+.f27-eis-head .c.on { color: var(--wt21-colors-green, #49e700); }
+.f27-eis-head .c.amber { color: var(--wt21-colors-amber, orange); }
 .f27-eis-row { height: 26px; }
+/* v11.5 (test: the fuel labels ran into each other): the fuel page has 4 rows, so each has room for its label and unit */
+.f27-eis-row.tall { height: 37px; }
+/* the engine page has 6 rows of 26 px: its unit goes beside the label (below, it ran into the next row) */
+.f27-eis-row:not(.tall) .f27-eis-label small { display: inline; margin: 0 0 0 4px; }
 .f27-eis-num { text-align: right; }
 .f27-eis-num.ok { color: var(--wt21-colors-green, #49e700); }
 .f27-eis-num.amber { color: var(--wt21-colors-amber, orange); }
@@ -113,14 +143,25 @@ interface Cell {
   fill: NodeReference<HTMLDivElement>;
 }
 
-/** The Dart engine indication page. */
+const newCells = (rows: readonly EisRow[]): Cell[][] => rows.map(() => [
+  { num: FSComponent.createRef<HTMLDivElement>(), fill: FSComponent.createRef<HTMLDivElement>() },
+  { num: FSComponent.createRef<HTMLDivElement>(), fill: FSComponent.createRef<HTMLDivElement>() },
+]);
+
+/** The Dart engine indication page, and (v11.5) the fuel page in its place when the tablet asks for it. */
 export class F27Eis extends DisplayComponent<ComponentProps> {
-  private readonly cells: Cell[][] = ROWS.map(() => [
-    { num: FSComponent.createRef<HTMLDivElement>(), fill: FSComponent.createRef<HTMLDivElement>() },
-    { num: FSComponent.createRef<HTMLDivElement>(), fill: FSComponent.createRef<HTMLDivElement>() },
-  ]);
+  private readonly cells = newCells(ROWS);
+  private readonly fuelCells = newCells(FUEL_ROWS);
+  private readonly units: NodeReference<HTMLElement>[] = FUEL_ROWS.map(() => FSComponent.createRef<HTMLElement>());
+  private readonly engBlock = FSComponent.createRef<HTMLDivElement>();
+  private readonly fuelBlock = FSComponent.createRef<HTMLDivElement>();
+  private readonly headL = FSComponent.createRef<HTMLDivElement>();
+  private readonly headR = FSComponent.createRef<HTMLDivElement>();
+  private readonly headC = FSComponent.createRef<HTMLDivElement>();
 
   private timer = -1;
+  private ticks = 0;
+  private kg = false;
 
   /** @inheritdoc */
   public onAfterRender(): void {
@@ -130,20 +171,42 @@ export class F27Eis extends DisplayComponent<ComponentProps> {
 
   /** Reads every value and writes it to the page. */
   private update(): void {
+    const fuel = sim(MFD_TOP_VAR, 'number') === 1;
+    if (this.ticks++ % 10 === 0) {
+      try { this.kg = typeof GetStoredData === 'function' && GetStoredData('F27TAB_units') !== 'lb'; } catch { this.kg = true; }
+    }
+    this.engBlock.instance.style.display = fuel ? 'none' : '';
+    this.fuelBlock.instance.style.display = fuel ? '' : 'none';
+    this.headL.instance.textContent = fuel ? 'FUEL L' : 'ENG 1';
+    this.headR.instance.textContent = fuel ? 'FUEL R' : 'ENG 2';
+    const w = (lb: number): number => (this.kg ? lb / LB_PER_KG : lb);
+    // v11.6: the tablet's autothrottle mode (L:F27_AT_MODE: 1 SPD, 2 CLB, 3 IDLE, 4 disconnected), beside the fuel total on the fuel page
+    const at = AT_TEXT[sim(AT_MODE_VAR, 'number')] ?? '';
+    const total = fuel ? `${Math.round(w(sim('FUEL TOTAL QUANTITY WEIGHT', 'pounds')))} ${this.kg ? 'KG' : 'LB'}` : '';
+    this.headC.instance.textContent = [at, total].filter((t) => t).join('  ');
+    this.headC.instance.className = sim(AT_MODE_VAR, 'number') === 4 ? 'c amber' : at ? 'c on' : 'c';
+    if (fuel) {
+      FUEL_ROWS.forEach((row, r) => {
+        this.units[r].instance.textContent = row.unit === 'W/H' ? (this.kg ? 'KG/H' : 'PPH') : (this.kg ? 'KG' : 'LB');
+      });
+    }
+    const rows = fuel ? FUEL_ROWS : ROWS;
+    const cells = fuel ? this.fuelCells : this.cells;
     ([1, 2] as EngineIndex[]).forEach((engine, e) => {
       const state = engineState(engine);
-      ROWS.forEach((row, r) => {
-        const value = row.read(engine);
+      rows.forEach((row, r) => {
+        const raw = row.read(engine);
+        const max = typeof row.max === 'number' ? row.max : row.max(engine);
         const lv = row.level ? row.level(state) : 'ok';
-        const cell = this.cells[r][e];
+        const cell = cells[r][e];
         const num = cell.num.getOrDefault();
         const fill = cell.fill.getOrDefault();
         if (num) {
-          num.textContent = Math.round(value).toString();
+          num.textContent = Math.round(fuel ? w(raw) : raw).toString();
           num.className = `f27-eis-num ${lv}`;
         }
         if (fill) {
-          fill.style.width = `${Math.max(0, Math.min(1, value / row.max)) * 100}%`;
+          fill.style.width = `${Math.max(0, Math.min(1, raw / max)) * 100}%`;
           fill.className = lv;
         }
       });
@@ -160,16 +223,29 @@ export class F27Eis extends DisplayComponent<ComponentProps> {
   public render(): VNode {
     return (
       <div class="f27-eis">
-        <div class="f27-eis-head"><div class="l">ENG 1</div><div class="r">ENG 2</div></div>
-        {ROWS.map((row, r) => (
-          <div class="f27-eis-row">
-            <div class="f27-eis-num" ref={this.cells[r][0].num} />
-            <div class="f27-eis-bar"><div ref={this.cells[r][0].fill} /></div>
-            <div class="f27-eis-label">{row.label}<small>{row.unit}</small></div>
-            <div class="f27-eis-bar r"><div ref={this.cells[r][1].fill} /></div>
-            <div class="f27-eis-num" ref={this.cells[r][1].num} />
-          </div>
-        ))}
+        <div class="f27-eis-head"><div class="l" ref={this.headL}>ENG 1</div><div class="c" ref={this.headC} /><div class="r" ref={this.headR}>ENG 2</div></div>
+        <div ref={this.engBlock}>
+          {ROWS.map((row, r) => (
+            <div class="f27-eis-row">
+              <div class="f27-eis-num" ref={this.cells[r][0].num} />
+              <div class="f27-eis-bar"><div ref={this.cells[r][0].fill} /></div>
+              <div class="f27-eis-label">{row.label}<small>{row.unit}</small></div>
+              <div class="f27-eis-bar r"><div ref={this.cells[r][1].fill} /></div>
+              <div class="f27-eis-num" ref={this.cells[r][1].num} />
+            </div>
+          ))}
+        </div>
+        <div ref={this.fuelBlock} style="display: none">
+          {FUEL_ROWS.map((row, r) => (
+            <div class="f27-eis-row tall">
+              <div class="f27-eis-num" ref={this.fuelCells[r][0].num} />
+              <div class="f27-eis-bar"><div ref={this.fuelCells[r][0].fill} /></div>
+              <div class="f27-eis-label">{row.label}<small ref={this.units[r]}>{row.unit}</small></div>
+              <div class="f27-eis-bar r"><div ref={this.fuelCells[r][1].fill} /></div>
+              <div class="f27-eis-num" ref={this.fuelCells[r][1].num} />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

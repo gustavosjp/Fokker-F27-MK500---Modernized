@@ -1,11 +1,6 @@
 /* F27 tablet (1280 x 800 page). Kept to what the sim's browser does well: flexbox, no `gap`, no `inset`, no filters.
-   Font: DejaVu Sans SemiBold (free licence, the one the Working Title G1000/G3000 ship), next to this file. */
-@font-face {
-  font-family: "F27Tab";
-  src: url("/Pages/VCockpit/Instruments/F27WT21/Tablet/DejaVuSans-SemiBold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
+   Font: the sim's own Roboto, as the Working Title instruments name it (v11.5: no font file of ours, so the tablet follows the sim's,
+   including a user's font mod; until v11.4 it carried DejaVu Sans SemiBold). */
 
 f27-tablet {
   display: block;
@@ -35,7 +30,10 @@ f27-tablet {
   overflow: hidden;
   background: var(--bg);
   color: var(--text);
-  font-family: "F27Tab", "Roboto", Arial, sans-serif;
+  /* v11.6 (test: squares where the degree sign, the middle dot, the dash and the arrows go): the sim defines no font called "Roboto", only
+     "Roboto-Regular"; this is the stack the sim's own pages use (its body rule), whose fallbacks (micross, Nirmalas ...) have those symbols.
+     Nothing here ships with the add-on: all of it are the sim's fonts. */
+  font-family: Roboto-Regular, Arial, Meiryobui, NotoSansSC, NotoSansKR, Mangal, Nirmalas, micross, sans-serif;
   -webkit-user-select: none;
   user-select: none;
 }
@@ -739,8 +737,18 @@ f27-tablet {
   flex: 1;
 }
 
+/* v11.6: drawn, not a glyph: the sim's fonts may lack the small triangles */
 .select-caret {
-  color: var(--muted);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid var(--muted);
+}
+
+.select-caret.up {
+  border-top: none;
+  border-bottom: 8px solid var(--muted);
 }
 
 .select.open {
@@ -781,6 +789,120 @@ f27-tablet {
 .sb-empty,
 .sb-ofp {
   height: 100%;
+}
+
+.flight {
+  position: relative;
+}
+
+/* v11.5: the OFP over the Flight page, as SimBrief's PDF lays it out. Its layout needs a fixed-width font: the sim's own RobotoMono,
+   from its base EFB package (fs-base-efb, always installed), by path: no font file of ours. Its navlog as a table if the text is absent. */
+@font-face {
+  font-family: "F27SimMono";
+  src: url("/efb_ui/efb_os/Assets/fonts/Roboto/RobotoMono-Medium.ttf") format("truetype");
+}
+
+.sb-plan-body {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* one block per page of SimBrief's PDF, stacked in one scroll with a thin gap between pages */
+.sb-plan-sheet {
+  padding: 14px 18px;
+  margin-bottom: 6px;
+  background: #f4f4f0;
+}
+
+.sb-plan-sheet img {
+  display: block;
+  max-width: 100%;
+  margin: 10px auto 0 auto;
+}
+
+.sb-plan-line {
+  height: 19px;
+  overflow: hidden;
+  color: #111;
+  font-family: "F27SimMono", RobotoMono-Regular, Meiryobui, Nirmalas, micross, monospace;
+  font-size: 15px;
+  line-height: 19px;
+  white-space: pre;
+}
+
+.sb-plan {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.sb-plan-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.sb-plan-bar .button {
+  margin-left: 10px;
+}
+
+.sb-plan-title {
+  flex: 1;
+  color: var(--accent);
+  font-size: 22px;
+}
+
+.sb-nav {
+  background: #0a0d10;
+  border-radius: 12px;
+}
+
+.sb-nav-row {
+  display: flex;
+  padding: 0 16px;
+  height: 40px;
+  line-height: 40px;
+  border-bottom: 1px solid var(--line);
+  color: #c9d3dc;
+  font-size: 18px;
+}
+
+.sb-nav-row.head {
+  height: 32px;
+  line-height: 32px;
+  border-bottom: none;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.sb-nav-row span {
+  width: 13%;
+  text-align: right;
+}
+
+.sb-nav-row span:first-child {
+  width: 18%;
+  text-align: left;
+  color: var(--text);
+}
+
+.sb-nav-row span:nth-child(2) {
+  width: 15%;
+  text-align: left;
+}
+
+.sb-nav-row span:nth-child(6) {
+  width: 15%;
+}
+
+.sb-nav-empty {
+  padding: 20px;
+  color: var(--muted);
 }
 
 .sb-empty {
@@ -1010,6 +1132,20 @@ f27-tablet {
 .clrow.ticked .clbox {
   background: var(--ok);
   border-color: var(--ok);
+}
+
+/* the tick is drawn (v11.6): no glyph to be missing */
+.clrow.ticked .clbox::after {
+  content: '';
+  display: block;
+  box-sizing: border-box;
+  width: 7px;
+  height: 13px;
+  margin: 1px auto 0 auto;
+  border-right: 3px solid #0e1114;
+  border-bottom: 3px solid #0e1114;
+  -webkit-transform: rotate(40deg);
+  transform: rotate(40deg);
 }
 
 .clitem {
@@ -1405,12 +1541,16 @@ f27-tablet {
 }
 
 .hclock {
-  height: 150px;
+  /* v11.6 (test: the date line was 8 px under the weather card): the card follows the clock instead of sitting at a fixed 150 px */
+  flex: none;
+  min-height: 150px;
 }
 
 .hc-time {
+  height: 100px;
   font-size: 92px;
   line-height: 100px;
+  white-space: nowrap;
 }
 
 .hc-unit {

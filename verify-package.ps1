@@ -140,6 +140,8 @@ if (Test-Path "$sim\panel.WT21") {
     $pluginText = Get-Content "$root\html_ui\Pages\VCockpit\Instruments\F27WT21\Plugins\F27MfdPlugin.js" -Raw
     Check 'plugin registers itself and renders the EIS' (($pluginText -match 'registerPlugin') -and ($pluginText -match 'renderEis'))
     Check 'plugin script is ASCII only' (-not ($pluginText -match '[^\x00-\x7F]'))
+    $pfdText = Get-Content "$root\html_ui\Pages\VCockpit\Instruments\F27WT21\PFD\PFD.js" -Raw
+    Check 'PFD: the selected speed box and the speed bug also show while the autothrottle is on (L:F27_AT_ARMED, v11.6)' (([regex]::Matches($pfdText, "L:F27_AT_ARMED").Count -eq 2) -and ($pfdText -match 'f27Update'))
     # v10.6: the engine band in the F27 gauges' own variables (torque psi, rpm, TGT) and coloured by the Dart's limits from the manual
     Check "plugin's EIS reads the author's torque / rpm / TGT and the Dart's limits" (($pluginText -match 'f275_xengtorq_') -and ($pluginText -match 'f275_RpmF27_0') -and ($pluginText -match 'f275_dart_egt_0') -and ($pluginText -match 'tgtBands'))
     # v10.9: the GPS 530 housing is switched with the cockpit, so the plugin no longer holds the author's L:GPS_isVisible at 0
@@ -432,6 +434,10 @@ if (Test-Path "$sim\panel.WT21") {
     $badWind = @($wind.meshes.PSObject.Properties | Where-Object { $_.Value -le 0.99 } | ForEach-Object { $_.Name })
     Check "every added mesh (screens, click zones, walls) wound clockwise ($(@($wind.meshes.PSObject.Properties).Count) meshes)" ($badWind.Count -eq 0) ($badWind -join ',')
     Check 'hardware atlas F27WT21_HW.PNG.DDS in texture.common' (Test-Path "$sim\texture.common\F27WT21_HW.PNG.DDS")
+    $hwMat = @($wj.materials | Where-Object { $_.name -eq 'F27_WT21_hw' })[0]
+    $compUri = $(if ($hwMat -and $hwMat.occlusionTexture) { $wj.images[$wj.textures[$hwMat.occlusionTexture.index].extensions.MSFT_texture_dds.source].uri })
+    $compJson = "$sim\texture.common\F27WT21_HW_COMP.PNG.DDS.json"
+    Check 'hardware COMP map: F27_WT21_hw uses F27WT21_HW_COMP.PNG.DDS as occlusion + metallic/roughness, sidecar METAL_ROUGH_AO_DATA (v11.5)' (($compUri -eq 'F27WT21_HW_COMP.PNG.DDS') -and ($hwMat.pbrMetallicRoughness.metallicRoughnessTexture.index -eq $hwMat.occlusionTexture.index) -and (Test-Path "$sim\texture.common\F27WT21_HW_COMP.PNG.DDS") -and (Test-Path $compJson) -and ((Get-Content $compJson -Raw) -match 'FL_BITMAP_METAL_ROUGH_AO_DATA'))
     $apStrips = @($hide | Where-Object { $_.Node -like 'x0_Pan_ApWarn_0*' } | ForEach-Object { $_.Node })
     Check "old autopilot annunciator strip hidden under the captain's DCP only ($($apStrips -join ','))" (($apStrips.Count -eq 1) -and ($apStrips[0] -like 'x0_Pan_ApWarn_01*'))
     $crsHidden = @($hide | Where-Object { $_.Node -like 'x0_CRS_*' }).Count
@@ -479,8 +485,11 @@ if (Test-Path "$sim\panel.WT21") {
         $tm = $wj.materials | Where-Object { $_.name -eq $u.material } | Select-Object -First 1
         Check "tablet $($u.id): screen material $($u.material) is a touch surface (Collision tag)" ($tm -and (@($tm.extensions.ASOBO_tags.tags) -contains 'Collision'))
         $tdir = "$root\html_ui\Pages\VCockpit\Instruments\F27WT21\Tablet"
-        $missingT = @('F27Tablet.html', 'F27Tablet.css', 'F27Tablet.js', 'DejaVuSans-SemiBold.ttf' | Where-Object { -not (Test-Path "$tdir\$_") })
+        $missingT = @('F27Tablet.html', 'F27Tablet.css', 'F27Tablet.js' | Where-Object { -not (Test-Path "$tdir\$_") })
         Check "tablet $($u.id): instrument files in F27WT21\Tablet" ($missingT.Count -eq 0) ($missingT -join ',')
+        # v11.5: no font of ours but the two WT21 ones its css names; the tablet uses the sim's Roboto
+        $fonts = @(Get-ChildItem "$root\html_ui" -Recurse -File -Filter *.ttf | ForEach-Object { $_.Name } | Sort-Object)
+        Check "fonts: only WT21's two named ones ($($fonts -join ', '))" (($fonts -join ',') -eq 'Custom_Altimeter_wt21-LightCondensed.ttf,wt21-Condensed.ttf')
         if (Test-Path "$tdir\F27Tablet.js") {
             $tjs = Get-Content "$tdir\F27Tablet.js" -Raw
             Check "tablet $($u.id): F27Tablet.js registers the interactive f27-tablet instrument" (($tjs -match "registerInstrument\('f27-tablet'") -and ($tjs -match 'get isInteractive\(\) \{\s*return true;'))
@@ -540,6 +549,8 @@ if (Test-Path "$sim\panel.WT21") {
     # v10 (test 12: "o YD não liga"): a yaw damper gain of 0 means no yaw damper to the sim
     $ydGain = [regex]::Match((Get-Content "$sim\systems.cfg" -Raw), '(?m)^yaw_damper_gain\s*=\s*([0-9.]+)')
     Check "systems.cfg has a working yaw damper (yaw_damper_gain = $($ydGain.Groups[1].Value))" ($ydGain.Success -and ([double]$ydGain.Groups[1].Value -gt 0))
+    $ptrim = [regex]::Match((Get-Content "$sim\systems.cfg" -Raw), '(?m)^pitch_use_trim = (\d)')
+    Check "systems.cfg: the autopilot works the elevator, not only the trim (pitch_use_trim = $($ptrim.Groups[1].Value), v11.6)" ($ptrim.Success -and $ptrim.Groups[1].Value -eq '0')
     $pl = @($pxml.SelectNodes('//Instrument[Name="WT21_MFD_1"]/Plugin') | ForEach-Object { $_.InnerText })
     Check 'WT21_MFD_1 has the F27 plugin tag' ($pl.Count -eq 1 -and $pl[0] -eq 'coui://html_ui/Pages/VCockpit/Instruments/F27WT21/Plugins/F27MfdPlugin.js') ($pl -join ',')
     # v10.4 (user: wheel chocks, "assim as escadas sairiam ao remover os calços"): the WT21 variation's own exterior with chocks

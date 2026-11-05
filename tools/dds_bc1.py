@@ -39,7 +39,8 @@ def bc1(img):
     return out.tobytes()
 
 
-def write_dds(img, path):
+def write_dds(img, path, flags=('FL_BITMAP_COMPRESSION', 'FL_BITMAP_MIPMAP')):
+    """flags: the sidecar's Flags; a COMP (occlusion/roughness/metallic) map adds FL_BITMAP_NO_GAMMA_CORRECTION and FL_BITMAP_METAL_ROUGH_AO_DATA."""
     w, h = img.size
     levels, cur = [], img
     while True:
@@ -59,4 +60,4 @@ def write_dds(img, path):
         for lv in levels:
             f.write(lv)
     with open(path + '.json', 'w') as f:
-        json.dump({'Version': 2, 'SourceFileDate': 133688302360000000, 'Flags': ['FL_BITMAP_COMPRESSION', 'FL_BITMAP_MIPMAP']}, f)
+        json.dump({'Version': 2, 'SourceFileDate': 133688302360000000, 'Flags': list(flags)}, f)

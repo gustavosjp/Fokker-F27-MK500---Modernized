@@ -18,18 +18,48 @@ robocopy $srcRoot $dstRoot /E /NFL /NDL /NJH /NJS /NP | Out-Null
 if ($LASTEXITCODE -ge 8) { throw "robocopy failed ($LASTEXITCODE)" }
 $global:LASTEXITCODE = 0
 
+# v11.6 (test: "não está aparecendo o SPD selecionado"): WT21 shows the selected speed (the cyan box above the tape and the bug on it) only
+# while the vertical mode is FLC, but the tablet's autothrottle holds the SPD knob's speed in ALT / VS / PATH too, so the pilot could not
+# see what it follows. Both now also show while the autothrottle is on (L:F27_AT_ARMED, written by the tablet); the check runs twice a second
+# because the mode annunciation does not change when the autothrottle is armed. Each pattern has to match exactly once.
+$pfdJs = "$dstRoot\PFD\PFD.js"
+$pfd = [System.IO.File]::ReadAllText($pfdJs)
+$pats = @(
+    @{ name = 'selected speed box'
+       find = "this\.props\.bus\.getSubscriber\(\)\.on\('fma_modes'\)\.handle\(\(v\) => \{\s*this\.selectedSpeedRef\.instance\.classList\.toggle\('hidden', v\.verticalActive != msfsSdk\.APVerticalModes\.FLC\);\s*\}\);"
+       with = "let f27Flc = false; const f27Update = () => this.selectedSpeedRef.instance.classList.toggle('hidden', !(f27Flc || SimVar.GetSimVarValue('L:F27_AT_ARMED', 'number') > 0)); this.props.bus.getSubscriber().on('fma_modes').handle((v) => { f27Flc = v.verticalActive == msfsSdk.APVerticalModes.FLC; f27Update(); }); setInterval(f27Update, 500);" },
+    @{ name = 'speed bug'
+       find = "sub\.on\('fma_modes'\)\.handle\(\(v\) => \{\s*this\.setIsVisible\(v\.verticalActive == msfsSdk\.APVerticalModes\.FLC\);\s*\}\);"
+       with = "let f27Flc = false; const f27Update = () => this.setIsVisible(f27Flc || SimVar.GetSimVarValue('L:F27_AT_ARMED', 'number') > 0); sub.on('fma_modes').handle((v) => { f27Flc = v.verticalActive == msfsSdk.APVerticalModes.FLC; f27Update(); }); setInterval(f27Update, 500);" }
+)
+foreach ($p in $pats) {
+    if ([regex]::Matches($pfd, $p.find).Count -ne 1) { throw "PFD.js: the '$($p.name)' code was not found exactly once (WT21 changed?)" }
+    $pfd = [regex]::Replace($pfd, $p.find, { param($m) $p.with })
+}
+[System.IO.File]::WriteAllText($pfdJs, $pfd, (New-Object System.Text.UTF8Encoding($false)))
+
 # The F27 MFD plugin (plugin-wt21, Dart engine indication) is loaded by the central MFD through a <Plugin> tag in panel.WT21\panel.xml.
 $pluginJs = 'C:\Projetos\f27-g1000\plugin-wt21\dist\F27MfdPlugin.js'
 if (-not (Test-Path $pluginJs)) { throw "plugin not built: $pluginJs (cd plugin-wt21; npm run build)" }
 New-Item -ItemType Directory -Force "$dstRoot\Plugins" | Out-Null
 Copy-Item $pluginJs "$dstRoot\Plugins\F27MfdPlugin.js" -Force
 
-# v10.2: the F27 tablet instrument (plugin-wt21 builds dist\F27Tablet.js; html, css and its font are in plugin-wt21\tablet)
+# v11.5: two of WT21's four fonts are named by no css, html or js (only Custom_Altimeter_wt21-LightCondensed.ttf "WT21" and
+# wt21-Condensed.ttf "WT21 FMC" are); they are left out, after checking that is still so.
+foreach ($font in 'wt21.ttf', 'wt21-LightCondensed.ttf') {
+    $named = '[/\\"''(]' + [regex]::Escape($font)        # the whole file name: Custom_Altimeter_wt21-LightCondensed.ttf is another font
+    $users = @(Get-ChildItem $dstRoot -Recurse -File -Include *.css, *.html, *.js | Where-Object { (Get-Content $_.FullName -Raw) -match $named })
+    if ($users.Count) { throw "$font is used by $($users[0].FullName): keep it" }
+    Remove-Item "$dstRoot\Assets\Fonts\$font" -ErrorAction SilentlyContinue
+}
+
+# v10.2: the F27 tablet instrument (plugin-wt21 builds dist\F27Tablet.js; html and css are in plugin-wt21\tablet; v11.5: no font of
+# its own, it uses the sim's Roboto)
 $tabletJs = 'C:\Projetos\f27-g1000\plugin-wt21\dist\F27Tablet.js'
 if (-not (Test-Path $tabletJs)) { throw "tablet not built: $tabletJs (cd plugin-wt21; npm run build)" }
 New-Item -ItemType Directory -Force "$dstRoot\Tablet" | Out-Null
 Copy-Item $tabletJs "$dstRoot\Tablet\F27Tablet.js" -Force
-foreach ($f in 'F27Tablet.html', 'F27Tablet.css', 'DejaVuSans-SemiBold.ttf', 'DejaVu-LICENSE.txt') { Copy-Item "C:\Projetos\f27-g1000\plugin-wt21\tablet\$f" "$dstRoot\Tablet\$f" -Force }
+foreach ($f in 'F27Tablet.html', 'F27Tablet.css') { Copy-Item "C:\Projetos\f27-g1000\plugin-wt21\tablet\$f" "$dstRoot\Tablet\$f" -Force }
 # v11 (published): the Working Title / Microsoft licence (MIT + "only for usage in Microsoft Flight Simulator") goes with their files
 Copy-Item 'C:\Projetos\msfs-avionics-mirror\LICENSE' "$dstRoot\LICENSE-WorkingTitle.txt" -Force
 

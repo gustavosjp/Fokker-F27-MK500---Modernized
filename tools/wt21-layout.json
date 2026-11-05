@@ -618,9 +618,9 @@
             0.6682
           ],
           "height": 0.004,
-          "click": "(>K:YAW_DAMPER_TOGGLE)",
+          "click": "(L:F27_YD_SW, Bool) (A:AUTOPILOT YAW DAMPER, Bool) or if{ 0 (>L:F27_YD_SW) (A:AUTOPILOT YAW DAMPER, Bool) if{ (>K:YAW_DAMPER_TOGGLE) } } els{ 1 (>L:F27_YD_SW) (A:AUTOPILOT YAW DAMPER, Bool) ! if{ (>K:YAW_DAMPER_TOGGLE) } }",
           "light": true,
-          "lamp": "(A:AUTOPILOT YAW DAMPER, Bool)"
+          "lamp": "(L:F27_YD_SW, Bool) (A:AUTOPILOT YAW DAMPER, Bool) or"
         },
         {
           "name": "FD",
@@ -638,14 +638,44 @@
           "lamp": "(A:AUTOPILOT FLIGHT DIRECTOR ACTIVE:1, Bool)"
         },
         {
+          "name": "VNAV",
+          "label": "VNAV",
+          "type": "key",
+          "rect": [
+            0.7925,
+            0.4955,
+            0.8342,
+            0.6682
+          ],
+          "height": 0.004,
+          "click": "(L:XMLVAR_VNAVButtonValue, Bool) ! (>L:XMLVAR_VNAVButtonValue)",
+          "light": true,
+          "lamp": "(L:XMLVAR_VNAVButtonValue, Bool)"
+        },
+        {
+          "name": "AT",
+          "label": "A/T",
+          "type": "key",
+          "rect": [
+            0.8529,
+            0.1864,
+            0.8946,
+            0.3591
+          ],
+          "height": 0.004,
+          "click": "(>K:AUTO_THROTTLE_ARM)",
+          "light": true,
+          "lamp": "(L:F27_AT_ARMED, Bool)"
+        },
+        {
           "name": "SPD",
           "label": "SPD",
           "type": "knob",
           "rect": [
             0.8471,
-            0.2909,
+            0.43,
             0.9004,
-            0.5818
+            0.72
           ],
           "height": 0.012,
           "cw": "(>K:AP_SPD_VAR_INC)",
@@ -2195,5 +2225,8 @@
   "_comment_v103": "v10.3: tablet folds away (bezel click / Settings), SimBrief loading (real or instant), avionics on the author's instrument circuit 17.",
   "_comment_v109": "v10.9: radio altimeter, RMI and OAT in a column beside the PFD; Classic / Modernized cockpit switch in the tablet.",
   "_comment_v1091": "v10.9.1: MFD knobs send the events WT21 listens to (menus without Push_, ZOOM = the DCP range); CDU function keys taller, one-line page keys, legends at 16 px/mm.",
-  "_comment_v1010": "v10.10: FCP SPD knob (push = speed of the moment), CRS push centres the course, MFD MENU ADV / DATA dual knob; tablet pushback and charts with the aircraft."
+  "_comment_v1010": "v10.10: FCP SPD knob (push = speed of the moment), CRS push centres the course, MFD MENU ADV / DATA dual knob; tablet pushback and charts with the aircraft.",
+  "_comment_v115": "v11.5 (test: the climb went through a 6500 ft constraint in plain FLC/ALTS): FCP VNAV key under FD. WT21 starts VNAV enabled but inactive (FMC onInitialized: vnav_set_state true -> Enabled_Inactive) and activates it only from the sim's VNAV lock, which the SDK reads from L:XMLVAR_VNAVButtonValue (AutopilotInstrument vnav_active -> ap_lock_set VNav -> tryActivate); the key toggles that variable and its lamp shows it (WT21 clears it when VNAV deactivates).",
+  "_comment_v116": "v11.6 (user: the autothrottle only in the tablet is \"muito ruim\"): FCP A/T key above the SPD knob. It sends K:AUTO_THROTTLE_ARM, which the tablet intercepts (the aircraft has no sim autothrottle) to turn its autothrottle on/off; the lamp shows L:F27_AT_ARMED, which the tablet writes.",
+  "_comment_v116b": "v11.6: the YD key also works a software yaw damper (tablet plugin, yawdamper.ts: rudder trim against the washed-out yaw rate) because the sim reads the author's systems.cfg (yaw_damper_gain 0), not ours: the key puts L:F27_YD_SW and the sim's own damper in the same state (lamp lit = either on: a click turns both off, otherwise both on); toggling the two independently left them out of step and the lamp stayed lit."
 }
