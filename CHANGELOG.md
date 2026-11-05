@@ -34,7 +34,10 @@ Fokker F27-500 Modernized, an add-on for bgaurant's F27-500 v2 (it needs his pac
 **Known limits** (details in the README)
 - MSFS 2024 reads the `systems.cfg` of the author's package, not the add-on's. With his file as it is, the simulator's own yaw damper does
   not engage (the mod's software damper covers it), the autopilot bank limit stays at 22° and the autopilot works the elevator trim only.
-  The README has an optional two-line edit for your own copy of his file.
+  Optional, at your own discretion: in **your** copy of his file, `bgt-f27500-v2\SimObjects\Airplanes\Bgt_F27500v2\systems.cfg`,
+  section `[AUTOPILOT]` (currently lines 63 and 77), change `max_bank = 22` to `max_bank = 30` and `yaw_damper_gain = 0` to
+  `yaw_damper_gain = 0.4`. With the gain above 0 the simulator's yaw damper engages and the mod's stands by. An update of his package
+  undoes the change; the mod neither changes nor distributes his file.
 - The software yaw damper and the sideslip trim are new and have had little flight time: tell me if the aircraft wanders with the YD on.
 
 ### Português
@@ -68,7 +71,11 @@ Fokker F27-500 Modernized, an add-on for bgaurant's F27-500 v2 (it needs his pac
 **Limites conhecidos** (detalhes no README)
 - O MSFS 2024 lê o `systems.cfg` do pacote do autor, não o do add-on. Com o arquivo dele como está, o yaw damper do próprio simulador não
   liga (o amortecedor por software do mod cobre isso), o limite de inclinação do piloto automático fica em 22° e o piloto automático
-  ajusta só o trim do profundor. O README tem uma edição opcional de duas linhas na sua cópia do arquivo dele.
+  ajusta só o trim do profundor. Opcional, por sua conta: na **sua** cópia do arquivo dele,
+  `bgt-f27500-v2\SimObjects\Airplanes\Bgt_F27500v2\systems.cfg`, seção `[AUTOPILOT]` (hoje nas linhas 63 e 77), troque
+  `max_bank = 22` por `max_bank = 30` e `yaw_damper_gain = 0` por `yaw_damper_gain = 0.4`. Com o ganho acima de 0 o yaw damper do
+  simulador liga e o do mod fica parado. Uma atualização do pacote do autor desfaz a mudança; o mod não altera nem distribui o
+  arquivo dele.
 - O amortecedor por software e o trim de derrapagem são novos e voaram pouco: avise se o avião vagar com o YD ligado.
 
 ## v11.4
