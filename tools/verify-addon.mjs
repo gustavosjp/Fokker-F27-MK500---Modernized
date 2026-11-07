@@ -127,6 +127,8 @@ console.log('nothing of his carried along');
 const authorContentInfo = readdirSync(join(pristineDir, 'ContentInfo'))[0];
 const copies = walk(pkgDir).filter((p) => !/layout\.json$|manifest\.json$/.test(p)).filter((p) => {
   const r = relative(pkgDir, p).split(/[\\/]/);
+  // v11.5.1: the booklets' font is Google's Roboto (Apache 2.0, licensed in our own Data folder), not his work, though his package has the same file
+  if (r.join('/').toLowerCase() === 'data/roboto-regular.ttf') return false;
   if (r[0] === 'SimObjects' && r[2] === ourSimName) r[2] = AUTHOR_SIM;
   if (r[0] === 'ContentInfo') r[1] = authorContentInfo;
   const his = join(pristineDir, ...r);
@@ -145,6 +147,9 @@ const changed = walk(sim).filter((p) => {
     && !DERIVED_IN_PLACE.includes(r) && r !== 'aircraft.cfg' && !/^texture\.[^\\/]+[\\/]texture\.cfg$/i.test(r) && !isBridge(p);
 });
 check(`no file of his changed in place but ${DERIVED_IN_PLACE.join(', ')}`, changed.length === 0, changed.map((p) => relative(sim, p)).join(','));
+// v11.5.1: the booklets (his WASM's PilotGuide gauges) read ./data/Roboto-Regular.ttf from the package the module runs from; nothing else of his Data comes along
+const dataFiles = existsSync(join(pkgDir, 'Data')) ? readdirSync(join(pkgDir, 'Data')).sort() : [];
+check(`Data holds only the booklets' font and its license (${dataFiles.join(', ')})`, dataFiles.join(',') === 'LICENSE-Roboto.txt,Roboto-Regular.ttf');
 const files = walk(pkgDir);
 console.log(`  --   ${files.length} files, ${(files.reduce((n, p) => n + statSync(p).size, 0) / 1048576).toFixed(1)} MB${isBuilt ? ' (built)' : ''}`);
 console.log(`result: ${fail} failure(s)`);

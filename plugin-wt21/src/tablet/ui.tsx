@@ -40,7 +40,7 @@ export interface TabletProps extends ComponentProps {
 export type KeyboardFn = (title: StringKey, value: string, done: (v: string) => void, upper?: boolean) => void;
 
 /** The apps of the Home page (v10.5: icons instead of a tab bar, so more fit; v10.6: Systems). */
-export type AppId = 'flight' | 'charts' | 'checklist' | 'ground' | 'weights' | 'systems' | 'settings';
+export type AppId = 'flight' | 'charts' | 'checklist' | 'ground' | 'weights' | 'systems' | 'booklet' | 'settings';
 
 /** A titled panel. */
 export class Card extends DisplayComponent<ComponentProps & { title: Subscribable<string>; class?: string }> {

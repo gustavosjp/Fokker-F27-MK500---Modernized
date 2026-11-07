@@ -14,6 +14,12 @@ Their license is MIT with an addendum: the software and any derivative works are
 Simulator**. Full text: [licenses/WorkingTitle-Microsoft-LICENSE.txt](licenses/WorkingTitle-Microsoft-LICENSE.txt). The built
 package carries the same text as `html_ui/Pages/VCockpit/Instruments/F27WT21/LICENSE-WorkingTitle.txt`.
 
+## Roboto — Google
+
+The built package carries `Data/Roboto-Regular.ttf` (Apache License 2.0, text in
+[licenses/Roboto-Apache-2.0.txt](licenses/Roboto-Apache-2.0.txt) and in the package as `Data/LICENSE-Roboto.txt`). Only the systems WASM reads it, to write
+the cockpit booklets: the module looks for it in the package it runs from. No page of the simulator names it, so it does not affect the simulator's own fonts.
+
 ## Fokker F27-500 v2 — bgaurant
 
 Not included. The add-on requires the author's package (`bgt-f27500-v2`) and reads his models, textures, sounds and systems from it.

@@ -719,6 +719,11 @@ f27-tablet {
 /* a drop-down (v10.3: the language, so more translations fit) */
 .select-wrap {
   position: relative;
+  margin-bottom: 24px;
+}
+
+.settings .dim-text {
+  margin-bottom: 18px;
 }
 
 .select {
@@ -828,6 +833,19 @@ f27-tablet {
   font-size: 15px;
   line-height: 19px;
   white-space: pre;
+}
+
+/* v11.5.1: the OFP at night; SimBrief's images have white backgrounds and the sim's browser is no friend of filters, so they are only dimmed */
+.sb-plan.night .sb-plan-sheet {
+  background: #14181c;
+}
+
+.sb-plan.night .sb-plan-line {
+  color: #c4cad0;
+}
+
+.sb-plan.night .sb-plan-sheet img {
+  opacity: 0.5;
 }
 
 .sb-plan {
@@ -2813,4 +2831,203 @@ f27-tablet {
 /* ground: turning and stopping wait for the tug (v10.11) */
 .push-btn.idle {
   opacity: 0.38;
+}
+
+/* v11.6: the Booklet app (the author's two cockpit booklets, shared both ways) */
+.booklet {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.bk-body {
+  flex: 1;
+  min-height: 0;
+}
+
+.bk-two {
+  display: flex;
+  height: 100%;
+}
+
+.bk-two > .card {
+  flex: 1;
+  margin-right: 24px;
+  overflow: hidden;
+}
+
+.bk-two > .card:last-child {
+  margin-right: 0;
+}
+
+.bk-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 19px;
+}
+
+.bk-row span {
+  color: var(--muted);
+  margin-right: 16px;
+}
+
+.bk-row b {
+  font-weight: 500;
+  text-align: right;
+}
+
+.bk-sub {
+  margin-top: 14px;
+  color: var(--accent);
+  font-size: 16px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.bk-inputs {
+  margin-bottom: 14px;
+}
+
+.bk-speeds {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -5px 12px;
+}
+
+.bk-speed {
+  box-sizing: border-box;
+  width: calc(33.33% - 10px);
+  margin: 0 5px 10px;
+  padding: 8px 14px;
+  background: #0a0d10;
+  border-radius: 14px;
+}
+
+.bk-speed span {
+  display: block;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.bk-speed b {
+  font-size: 30px;
+  font-weight: 500;
+}
+
+.bk-field {
+  display: flex;
+  align-items: baseline;
+  margin: 6px 0;
+  font-size: 19px;
+}
+
+.bk-field span {
+  color: var(--muted);
+  margin-right: 14px;
+}
+
+.bk-field b {
+  font-size: 26px;
+  font-weight: 500;
+  margin-right: 14px;
+}
+
+.bk-gps {
+  font-size: 16px;
+}
+
+.bk-steps {
+  display: flex;
+  margin: 8px 0 16px;
+}
+
+.bk-btn {
+  flex: 1;
+  height: 52px;
+  line-height: 52px;
+  margin-right: 8px;
+  font-size: 19px;
+}
+
+.bk-btn:last-child {
+  margin-right: 0;
+}
+
+.bk-total {
+  margin: 4px 0 14px;
+  font-size: 46px;
+  font-weight: 500;
+}
+
+.bk-total span {
+  display: block;
+  color: var(--muted);
+  font-size: 22px;
+}
+
+.bk-error {
+  margin: 10px 0 16px;
+  color: var(--warn);
+  font-size: 22px;
+}
+
+.card.bk-trim {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.bk-charts {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.bk-box {
+  fill: #0a0d10;
+  stroke: #5b6774;
+  stroke-width: 2;
+}
+
+.bk-grid {
+  stroke: #262d34;
+  stroke-width: 1;
+}
+
+.bk-tl {
+  stroke: #c4cad0;
+  stroke-width: 2.5;
+}
+
+.bk-tlabel,
+.bk-axis {
+  fill: #9aa4ad;
+  font-size: 15px;
+}
+
+.bk-ctitle {
+  fill: #e6e9ec;
+  font-size: 19px;
+  letter-spacing: 1px;
+}
+
+.bk-dot {
+  fill: var(--accent);
+  stroke: #ffffff;
+  stroke-width: 3;
+}
+
+.bk-trim-values {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.bk-trim-values .bk-row {
+  box-sizing: border-box;
+  width: 50%;
+  padding-right: 24px;
 }

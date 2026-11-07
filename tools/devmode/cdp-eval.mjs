@@ -12,7 +12,7 @@ const send = (method, params = {}) => new Promise((res) => {
   setTimeout(() => { if (pending.has(id)) { pending.delete(id); res({ timeout: true }); } }, 5000);
 });
 for (const expr of exprs) {
-  const r = await send('Runtime.evaluate', { expression: expr, returnByValue: true });
+  const r = await send("Runtime.evaluate", { expression: expr, returnByValue: true, awaitPromise: true });
   const v = r.result?.result;
   const out = r.error ? 'ERR ' + JSON.stringify(r.error) : r.timeout ? 'timeout' : r.result?.wasThrown ? 'THROWN ' + JSON.stringify(v) : JSON.stringify(v?.value ?? v?.description ?? v);
   console.log(`> ${expr.slice(0, 110)}\n  ${String(out).slice(0, 1500)}`);

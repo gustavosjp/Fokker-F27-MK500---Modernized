@@ -12,6 +12,7 @@ const APPS: { id: AppId; key: StringKey; color: string; icon: string }[] = [
   { id: 'ground', key: 'tabGround', color: '#de8a2c', icon: 'M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z' },
   { id: 'weights', key: 'tabWeights', color: '#7b58cc', icon: 'M12 2.5a2 2 0 0 0-1.9 1.5H5.6L2.5 12a3.6 3.6 0 0 0 7 0L6.9 6h3.3v13.5H7V21h10v-1.5h-3.2V6h3.3L14.5 12a3.6 3.6 0 0 0 7 0L18.4 4h-4.5A2 2 0 0 0 12 2.5zM6 8l1.8 4H4.2zm12 0 1.8 4h-3.6z' },
   { id: 'systems', key: 'tabSystems', color: '#c4473f', icon: 'M3.34 18A10 10 0 1 1 20.66 18L18.93 17A8 8 0 1 0 5.07 17zM16.5 8 12.9 13.8 11.1 12.2zM12 11.2a1.8 1.8 0 1 1 0 3.6 1.8 1.8 0 0 1 0-3.6z' },
+  { id: 'booklet', key: 'tabBooklet', color: '#2b5c8a', icon: 'M6 2h11a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3zm0 2a1 1 0 0 0-1 1v11.2A3 3 0 0 1 6 16h11V4zm0 14a1 1 0 0 0 0 2h11v-2zM8 6h7v2H8zm0 4h7v2H8z' },
   { id: 'settings', key: 'tabSettings', color: '#5b6774', icon: 'M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.3 7.3 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.3 7.3 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.3 7.3 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7.3 7.3 0 0 0 1.7-1l2.5 1 2-3.5zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z' },
 ];
 

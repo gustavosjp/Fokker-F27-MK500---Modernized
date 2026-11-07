@@ -42,7 +42,7 @@ const LB_PER_KG = 2.20462;
 export const MFD_TOP_VAR = 'L:F27_MFD_TOP';
 /** v11.6: the tablet's autothrottle mode, and how the band names it. */
 const AT_MODE_VAR = 'L:F27_AT_MODE';
-const AT_TEXT: Record<number, string> = { 1: 'A/T SPD', 2: 'A/T CLB', 3: 'A/T IDLE', 4: 'A/T DISC' };
+const AT_TEXT: Record<number, string> = { 1: 'A/T SPD', 2: 'A/T CLB', 3: 'A/T DES', 4: 'A/T DISC', 5: 'A/T TGT', 6: 'A/T MIN' };
 
 /** Fuel in one wing's tank in pounds: 1 / 2 the left / right main tank, 3 / 4 the collectors (as the tablet's Systems page reads them). */
 const tankLb = (n: number): number => sim(`FUELSYSTEM TANK QUANTITY:${n}`, 'gallons') * sim('FUEL WEIGHT PER GALLON', 'pounds');
@@ -180,11 +180,12 @@ export class F27Eis extends DisplayComponent<ComponentProps> {
     this.headL.instance.textContent = fuel ? 'FUEL L' : 'ENG 1';
     this.headR.instance.textContent = fuel ? 'FUEL R' : 'ENG 2';
     const w = (lb: number): number => (this.kg ? lb / LB_PER_KG : lb);
-    // v11.6: the tablet's autothrottle mode (L:F27_AT_MODE: 1 SPD, 2 CLB, 3 IDLE, 4 disconnected), beside the fuel total on the fuel page
+    // v11.6: the tablet's autothrottle mode (L:F27_AT_MODE: 1 SPD, 2 CLB, 3 DES, 4 disconnected, 5 held back by the TGT or torque limit, 6 holding the minimum speed), beside the fuel
+    // total on the fuel page
     const at = AT_TEXT[sim(AT_MODE_VAR, 'number')] ?? '';
     const total = fuel ? `${Math.round(w(sim('FUEL TOTAL QUANTITY WEIGHT', 'pounds')))} ${this.kg ? 'KG' : 'LB'}` : '';
     this.headC.instance.textContent = [at, total].filter((t) => t).join('  ');
-    this.headC.instance.className = sim(AT_MODE_VAR, 'number') === 4 ? 'c amber' : at ? 'c on' : 'c';
+    this.headC.instance.className = sim(AT_MODE_VAR, 'number') >= 4 ? 'c amber' : at ? 'c on' : 'c';
     if (fuel) {
       FUEL_ROWS.forEach((row, r) => {
         this.units[r].instance.textContent = row.unit === 'W/H' ? (this.kg ? 'KG/H' : 'PPH') : (this.kg ? 'KG' : 'LB');

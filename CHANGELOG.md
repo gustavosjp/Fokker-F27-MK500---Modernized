@@ -2,6 +2,69 @@
 
 Fokker F27-500 Modernized, an add-on for bgaurant's F27-500 v2 (it needs his package; it includes none of his original files).
 
+## v11.6 (2026-11-07)
+
+### English
+
+**Fixed** (thanks for the report on v11.5)
+- **Cockpit booklets blank.** Since v11 the add-on left out the font the author's booklet code writes with, so both booklets showed no
+  text (reference speeds, limitations, fuel calculator, options). The add-on now ships `Data\Roboto-Regular.ttf` (Google's Roboto,
+  Apache 2.0, licence alongside). Only his booklet code reads it: it does not change any MSFS font.
+- **Yaw damper oscillating left and right.** v11.5 sent each rudder trim correction at full scale, so every small correction swung the
+  trim all the way. It now moves the trim by the intended small amounts, and softer than before (at most 1.5° for the damping, 4° a
+  second), with the sideslip correction starting the right way (measured in flight) and the trim given back gently when it stops.
+- **Autothrottle power settings.** It now flies the F27's own rpm, from the aircraft's manual and booklets: climb and cruise at
+  14,200 rpm at most, descent at 11,000 rpm, the selected speed held in between; no more take-off power or flight idle in FLC. The fuel
+  trim stays with you: keep the TGT under 730 °C with it (the MFD band shows A/T TGT while the TGT holds the power back).
+- **Autothrottle right after take-off.** Engaged with no speed selected, it took the power off. It now takes the speed of the moment,
+  never holds less than 1.3 times the stall speed of the flap setting (A/T MIN on the band), goes to flight idle only in a descent, and
+  turning the altitude knob through the aircraft's altitude no longer swings the power.
+
+**New**
+- **Booklet app on the tablet:** reference speeds (Vref, V1, VR, V2, V3, VAPP for the weight, temperature, elevation and flaps now),
+  speed, engine and general limitations, the fuel calculator, the fuel trim charts with a dot at the outside temperature and pressure
+  altitude now, and the booklet options (fuel unit, decals, GPS). The calculator's distance, flight level and destination, and the
+  options, are the booklets' own: change them on either side and both show it. "From the OFP" fills the calculator from the SimBrief
+  plan.
+- **OFP night mode** on the tablet (Night / Day button).
+
+**Known limits**
+- The `systems.cfg` note of v11.5 still applies (MSFS 2024 reads the author's file; optional edit in your copy, see the README).
+- Between 18,500 and 19,000 kg the author's booklet shows Vref 96 kt; the tablet shows the figure of the booklet's table (101 to 102 kt).
+  With a high flight level in hot weather his fuel calculator counts 140 kg for the climb; the tablet uses the table (up to 600 kg).
+- The booklet failures (TGT can damage engine, typical and random failures) stay in the booklet: his code keeps them inside.
+
+### Português
+
+**Corrigido** (obrigado pelo relato sobre a v11.5)
+- **Livretos do cockpit em branco.** Desde a v11 o add-on deixava de fora a fonte com que o código do livreto do autor escreve, então os
+  dois livretos ficavam sem texto (velocidades de referência, limitações, calculadora de combustível, opções). Agora o add-on leva
+  `Data\Roboto-Regular.ttf` (Roboto do Google, Apache 2.0, licença junto). Só o código do livreto dele lê esse arquivo: não muda
+  nenhuma fonte do MSFS.
+- **Yaw damper oscilando para os lados.** A v11.5 mandava cada correção do trim de leme em escala cheia, então qualquer correção pequena
+  levava o trim até o fim. Agora o trim anda o pouco que deve, e mais suave que antes (no máximo 1,5° para amortecer, 4° por
+  segundo), com a correção da derrapagem começando para o lado certo (medido em voo) e o trim devolvido devagar quando ele para.
+- **Potência do autothrottle.** Agora voa os rpm do próprio F27, do manual e dos livretos do avião: subida e cruzeiro em no máximo
+  14.200 rpm, descida em 11.000 rpm, e a velocidade selecionada entre eles; nada de potência de decolagem ou marcha lenta no FLC. O fuel
+  trim continua com você: mantenha o TGT abaixo de 730 °C com ele (a faixa do MFD mostra A/T TGT enquanto o TGT segura a potência).
+- **Autothrottle logo após a decolagem.** Ligado sem velocidade selecionada, ele tirava a potência. Agora pega a velocidade do momento,
+  nunca segura menos que 1,3 vez a velocidade de estol do flap em uso (A/T MIN na faixa), só vai à marcha lenta em descida, e girar o
+  botão de altitude passando pela altitude do avião não balança mais a potência.
+
+**Novo**
+- **App Livreto no tablet:** velocidades de referência (Vref, V1, VR, V2, V3, VAPP para o peso, a temperatura, a elevação e os flaps de
+  agora), limites de velocidade, dos motores e gerais, a calculadora de combustível, os gráficos de fuel trim com um ponto na
+  temperatura externa e na altitude-pressão de agora, e as opções dos livretos (unidade do combustível, decalques, GPS). Distância, nível
+  e destino da calculadora, e as opções, são os dos próprios livretos: mudou de um lado, os dois mostram. "Do OFP" preenche a
+  calculadora com o plano do SimBrief.
+- **Modo noturno no OFP** do tablet (botão Noite / Dia).
+
+**Limites conhecidos**
+- Continua valendo a nota do `systems.cfg` da v11.5 (o MSFS 2024 lê o arquivo do autor; mudança opcional na sua cópia, veja o README).
+- Entre 18.500 e 19.000 kg o livreto do autor mostra Vref 96 kt; o tablet mostra o valor da tabela do livreto (101 a 102 kt). Com nível
+  de voo alto e calor, a calculadora dele conta 140 kg para a subida; o tablet usa a tabela (até 600 kg).
+- As falhas do livreto (TGT pode danificar o motor, falhas típicas e aleatória) ficam no livreto: o código dele as guarda por dentro.
+
 ## v11.5 (2026-11-04)
 
 ### English

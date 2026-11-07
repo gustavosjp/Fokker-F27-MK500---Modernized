@@ -100,6 +100,10 @@ const cfgText = readFileSync(join(sim, 'aircraft.cfg'), 'utf8');
 const textures = [...cfgText.matchAll(/^texture\s*=\s*"([^"]*)"/gm)].map((m) => m[1]);
 for (const p of hisCopies) {
   const folder = basename(dirname(p));
+  // v11.5.1 (a user: "both left and right booklets options, speeds and data are blanked with this mod"): his WASM's gauges draw the booklets with
+  // ./data/Roboto-Regular.ttf, read from the package the module runs from, and our copy of the module runs from ours. Google's font (Apache 2.0; it came to him
+  // with NanoVG's example folder), not his work, and read only by the WASM: nothing in html_ui names it, so it cannot touch the sim's fonts. That one file stays.
+  if (rel(p).toLowerCase() === 'data/roboto-regular.ttf') continue;
   if (!publicDir && (/[\\/]ContentInfo[\\/]/i.test(p) || (/^thumbnail/i.test(basename(p)) && textures.some((t) => folder.toLowerCase() === `texture.${t}`.toLowerCase())))) {
     report.keptAuthorImages.push(rel(p));
     continue;
@@ -146,6 +150,8 @@ if (existsSync(join(sim, 'Checklist'))) {
   rmSync(join(sim, 'Checklist'), { recursive: true });
   report.removedIdentical++;
 }
+
+copyFileSync(new URL('../licenses/Roboto-Apache-2.0.txt', import.meta.url), join(pkgDir, 'Data', 'LICENSE-Roboto.txt'));
 
 // ---------- 4. aircraft.cfg: inherit his aircraft, keep our variations ----------
 const cfgPath = join(sim, 'aircraft.cfg');

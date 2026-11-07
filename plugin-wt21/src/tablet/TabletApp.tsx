@@ -1,5 +1,6 @@
 import { ComponentProps, DisplayComponent, FSComponent, MappedSubject, NodeReference, Subject, Subscribable, VNode } from '@microsoft/msfs-sdk';
 
+import { BookletPage } from './BookletPage';
 import { ChartFix, ChartGroup, onChart } from './charts';
 import { CHECKLIST, ENGINE_LIMITATIONS, LIMITATIONS } from './checklist';
 import { GroundPage } from './GroundPage';
@@ -15,7 +16,7 @@ type Page = 'home' | AppId;
 
 const PAGE_TITLES: Record<Page, StringKey> = {
   home: 'tabHome', flight: 'tabFlight', ground: 'tabGround', weights: 'tabWeights', systems: 'tabSystems', checklist: 'tabChecklist', charts: 'tabCharts',
-  settings: 'tabSettings',
+  booklet: 'tabBooklet', settings: 'tabSettings',
 };
 
 /**
@@ -65,6 +66,7 @@ export class TabletApp extends DisplayComponent<TabletProps & { map: TabletMap }
           {page('systems', <SystemsPage model={model} i18n={i18n} open={this.open} shown={this.page.map((p) => p === 'systems')} />)}
           {page('checklist', <ChecklistPage model={model} i18n={i18n} />)}
           {page('charts', <ChartsPage model={model} i18n={i18n} keyboard={this.keyboard} map={this.props.map} shown={this.page.map((p) => p === 'charts')} />)}
+          {page('booklet', <BookletPage model={model} i18n={i18n} />)}
           {page('settings', <SettingsPage model={model} i18n={i18n} />)}
         </div>
         <Keyboard ref={this.keyboardRef} i18n={i18n} />
@@ -132,6 +134,14 @@ class SettingsPage extends DisplayComponent<TabletProps> {
               })}
             </div>
           </div>
+          <div class={{ hidden: m.classic }}>
+            <div class="card-title second">{i18n.t('autothrottle')}</div>
+            <div class="segmented">
+              {opt('at-off', 'OFF', m.autothrottle.armed.map((a) => !a))}
+              {opt('at-on', 'ON', m.autothrottle.armed)}
+            </div>
+            <div class="dim-text">{MappedSubject.create(([md]) => i18n.now(md === 'disc' ? 'atDisc' : 'atHint'), m.autothrottle.mode, m.lang)}</div>
+          </div>
         </Card>
         <Card title={i18n.t(m.classic ? 'about' : 'cockpit')}>
           <div class={{ hidden: m.classic }}>
@@ -146,12 +156,6 @@ class SettingsPage extends DisplayComponent<TabletProps> {
               {opt('eng', 'ENG', m.mfdTop.map((t) => t === 'eng'))}
               {opt('fuel', 'FUEL', m.mfdTop.map((t) => t === 'fuel'))}
             </div>
-            <div class="card-title second">{i18n.t('autothrottle')}</div>
-            <div class="segmented">
-              {opt('at-off', 'OFF', m.autothrottle.armed.map((a) => !a))}
-              {opt('at-on', 'ON', m.autothrottle.armed)}
-            </div>
-            <div class="dim-text">{MappedSubject.create(([md]) => i18n.now(md === 'disc' ? 'atDisc' : 'atHint'), m.autothrottle.mode, m.lang)}</div>
             <div class="card-title second">{i18n.t('about')}</div>
           </div>
           <div class="about">{i18n.t('aboutLine1')}</div>
@@ -418,9 +422,10 @@ class FlightPage extends DisplayComponent<TabletProps & { keyboard: (title: Stri
           <div class="sb-status">{MappedSubject.create(([a, b]) => b || a, status, sendText)}</div>
           <div class={{ 'sb-status': true, hidden: m.noFms.map((n) => !n) }}>{i18n.t('sbClassicNoFms')}</div>
         </div>
-        <div class={{ 'sb-plan': true, hidden: this.planOpen.map((o) => !o) }}>
+        <div class={{ 'sb-plan': true, night: m.ofpNight, hidden: this.planOpen.map((o) => !o) }}>
           <div class="sb-plan-bar">
             <div class="sb-plan-title">{ofp((o) => `OFP  ${o.callsign}  ${o.origin} → ${o.dest}`)}</div>
+            {button(MappedSubject.create(([n]) => i18n.now(n ? 'chDay' : 'chNight'), m.ofpNight, m.lang), () => m.ofpNight.set(!m.ofpNight.get()))}
             {button(Subject.create('▲'), () => this.pagePlan(-1))}
             {button(Subject.create('▼'), () => this.pagePlan(1))}
             {button(i18n.t('sbClose'), () => this.planOpen.set(false), 'primary')}

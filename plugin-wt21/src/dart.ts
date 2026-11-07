@@ -48,6 +48,20 @@ export const DART = {
   batteryStartV: 24,
 };
 
+/**
+ * v11.5.1: the F27's power settings, as the author's flight manual, booklets and checklist give them (Air Inter's figures). The levers select rpm ("one
+ * position always gives the same rpm value"); the fuel trim keeps the TGT under its limit at that rpm. The band 12,600 to 14,000 rpm vibrates and flight idle
+ * (7,000 rpm) is not for continuous use in flight.
+ */
+export const F27_POWER = {
+  /** Climb and cruise: 14,200 rpm at most. */
+  climbCruiseRpm: 14200,
+  /** Descent: 11,000 rpm (torque about 100). */
+  descentRpm: 11000,
+  /** Continuous TGT in climb and cruise (°C). */
+  continuousTgt: 730,
+};
+
 /** The highest TGT outside take-off and starting at an rpm (°C). */
 export function tgtLimit(rpm: number): number {
   const band = DART.tgtBands.find(([from]) => rpm >= from);

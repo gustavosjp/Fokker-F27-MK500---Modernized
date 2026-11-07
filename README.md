@@ -14,7 +14,7 @@ lista como um avião à parte ("Fokker F27500 Modernized …"). O F27 original c
 no próprio tablet.
 
 > **Download:** o pacote pronto para instalar está em
-> [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) (`bgt-f27500-modernized-v11.5.zip`).
+> [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) (`bgt-f27500-modernized-v11.6.zip`).
 > Relatos de problemas são bem-vindos em *Issues*.
 
 ### Requisitos
@@ -48,8 +48,10 @@ no próprio tablet.
 9. Interruptores dos servos do piloto automático (DIR, ROULIS, PROF, TRIM) num painel próprio, onde ficava o piloto automático antigo.
 10. Piloto automático e FMS da Working Title voando o F27. A lógica do piloto automático TAPIR original fica desligada nessa variação.
     - **Autothrottle opcional** (Ajustes do tablet, tecla A/T ou um botão do joystick ligado a "Autothrottle Arm"): segura a
-      velocidade do botão SPD; no FLC usa potência de subida (CLB) ou marcha lenta (IDLE). A faixa do MFD mostra A/T SPD, CLB, IDLE ou
-      DISC. Mover uma manete desliga. O PFD mostra a velocidade selecionada também fora do FLC enquanto o A/T está ligado.
+      velocidade do botão SPD até 14.200 rpm; no FLC sobe em 14.200 rpm (CLB) e desce em 11.000 rpm (DES), como no manual do avião. O fuel
+      trim continua com o piloto, para manter o TGT abaixo de 730 °C. A faixa do MFD mostra A/T SPD, CLB, DES, DISC ou TGT (limitado pelo
+      TGT). Ligado sem velocidade selecionada, pega a do momento, e nunca segura menos que 1,3 vez a velocidade de estol do flap em uso
+      (A/T MIN). Mover uma manete desliga. O PFD mostra a velocidade selecionada também fora do FLC enquanto o A/T está ligado.
 11. Diretor de voo (FD) e **yaw damper por software** (tecla YD): o tablet amortece a guinada e, com o piloto automático ligado, tira a
     derrapagem constante, tudo com o trim de leme (soma com os seus pedais e devolve o trim ao desligar). É assim porque o MSFS usa o
     `systems.cfg` do autor, onde o yaw damper do simulador não funciona. Experimental.
@@ -65,7 +67,7 @@ no próprio tablet.
 15. Tablet 3D num braço que dobra contra a parede (clique na moldura).
 16. Tela inicial com apps, hora UTC e local, português ou inglês, kg ou lb, brilho.
 17. **Voo:**
-    - importação do OFP do SimBrief, que pode ser lido no tablet numa página só, como o PDF;
+    - importação do OFP do SimBrief, que pode ser lido no tablet numa página só, como o PDF, com modo noturno;
     - envio da rota ao FMS: a SID e a STAR vão como procedimento, com as restrições de altitude, quando o banco do simulador tem
       aquele nome; o tablet diz o que foi como procedimento e o que não existe no banco. A chave "SID/STAR: procedimento/pontos" manda
       os pontos soltos, como antes.
@@ -75,7 +77,9 @@ no próprio tablet.
     - o avião desenhado sobre as cartas georreferenciadas;
     - mapa móvel (Bing) com a rota do OFP.
 19. METAR do aeroporto mais próximo, de origem, de destino ou de alternativa.
-20. Checklist interativo do F27 e limitações do avião e dos motores Dart.
+20. Checklist interativo do F27 e limitações do avião e dos motores Dart. **Livreto:** os dois livretos do autor no tablet, com
+    velocidades de referência para o peso e os flaps de agora, limitações, calculadora de combustível e gráficos de fuel trim com a
+    posição atual; as opções e a calculadora ficam sincronizadas com os livretos do cockpit.
 21. **Solo:** portas, escadas, GPU, calços, capas de pitot e de motor e pinos do trem, com uma vista de cima do avião.
 22. **Rebocador:**
     - empurrar com o rebocador do simulador, ou, com o GSX ativo, pelo menu do GSX, com o andamento mostrado no tablet;
@@ -103,7 +107,7 @@ no próprio tablet.
 ### Instalação
 
 1. Instale o F27-500 v2 do bgaurant.
-2. Baixe o `bgt-f27500-modernized-v11.5.zip` em
+2. Baixe o `bgt-f27500-modernized-v11.6.zip` em
    [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) e extraia a pasta
    `bgt-f27500-modernized` dentro da pasta Community do MSFS 2024. O `Add-Liveries.ps1` do zip fica fora da Community.
 3. No simulador, escolha "Fokker F27500 Modernized it80" na lista de aviões.
@@ -171,6 +175,8 @@ pacote dele desfaz a mudança. Este repositório não altera nem distribui o arq
 
 ### Créditos e licenças
 
+- **Roboto (`Data\Roboto-Regular.ttf`):** Google, Apache 2.0. Só o WASM de sistemas lê essa fonte, para escrever os livretos do cockpit; nenhuma página do
+  simulador a usa, então ela não mexe nas fontes do MSFS.
 - **Fokker F27-500 v2:** bgaurant. Não está incluído e é obrigatório.
 - **Aviônicos WT21, SDK do MSFS e wtlinesdk:** Working Title / Microsoft
   ([msfs-avionics-mirror](https://github.com/microsoft/msfs-avionics-mirror)). Licença MIT com o adendo "uso somente no Microsoft
@@ -193,7 +199,7 @@ the aircraft list as a separate aircraft ("Fokker F27500 Modernized …"). The o
 can be picked from the tablet itself.
 
 > **Download:** the ready-to-install package is in
-> [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) (`bgt-f27500-modernized-v11.5.zip`).
+> [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) (`bgt-f27500-modernized-v11.6.zip`).
 > Bug reports are welcome in *Issues*.
 
 ### Requirements
@@ -226,8 +232,10 @@ can be picked from the tablet itself.
 9. The autopilot servo switches (DIR, ROULIS, PROF, TRIM) on a panel of their own, where the old autopilot was.
 10. The Working Title autopilot and FMS fly the F27. The original TAPIR autopilot logic is turned off in this variation.
     - **Optional autothrottle** (tablet Settings, the A/T key, or a joystick button bound to "Autothrottle Arm"): holds the speed of the
-      SPD knob; in FLC it uses climb power (CLB) or idle (IDLE). The MFD band shows A/T SPD, CLB, IDLE or DISC. Moving a lever
-      disconnects it. The PFD shows the selected speed outside FLC too while the A/T is on.
+      SPD knob up to 14,200 rpm; in FLC it climbs at 14,200 rpm (CLB) and descends at 11,000 rpm (DES), as in the aircraft's manual. The
+      fuel trim stays with the pilot, to keep the TGT under 730 °C. The MFD band shows A/T SPD, CLB, DES, DISC or TGT (held back by the
+      TGT). Engaged with no speed selected, it takes the speed of the moment, and it never holds less than 1.3 times the stall speed of the
+      flap setting (A/T MIN). Moving a lever disconnects it. The PFD shows the selected speed outside FLC too while the A/T is on.
 11. Flight director (FD) and a **software yaw damper** (YD key): the tablet damps the yaw and, with the autopilot on, trims the steady
     sideslip away, all through the rudder trim (it adds to your pedals and gives the trim back when it stops). It works this way
     because MSFS reads the author's `systems.cfg`, where the simulator's own yaw damper does not work. Experimental.
@@ -243,7 +251,7 @@ can be picked from the tablet itself.
 15. A 3D tablet on an arm that folds against the side wall (click the bezel).
 16. Home screen with apps, UTC and local time, Portuguese or English, kg or lb, brightness.
 17. **Flight:**
-    - SimBrief OFP import, which can be read on the tablet as one continuous page, like the PDF;
+    - SimBrief OFP import, which can be read on the tablet as one continuous page, like the PDF, with a night mode;
     - route upload to the FMS: the SID and STAR go as procedures, with their altitude constraints, when the simulator's database has
       that name; the tablet says what went as a procedure and what is missing from the database. The "SID/STAR: procedure/points"
       switch sends plain points, as before.
@@ -253,7 +261,9 @@ can be picked from the tablet itself.
     - the aircraft drawn on georeferenced charts;
     - a moving map (Bing) with the OFP route.
 19. METAR for the nearest, origin, destination or alternate airport.
-20. Interactive F27 checklist, and the limitations of the aircraft and the Dart engines.
+20. Interactive F27 checklist, and the limitations of the aircraft and the Dart engines. **Booklet:** the author's two booklets on the
+    tablet, with reference speeds for the weight and flaps now, limitations, the fuel calculator and the fuel trim charts with the
+    present position; the options and the calculator stay in step with the cockpit booklets.
 21. **Ground:** doors, stairs, GPU, chocks, pitot and engine covers and gear pins, with a top view of the aircraft.
 22. **Tug:**
     - push back with the simulator's tug, or, with GSX running, through the GSX menu, with its progress on the tablet;
@@ -280,7 +290,7 @@ can be picked from the tablet itself.
 ### Installation
 
 1. Install bgaurant's F27-500 v2.
-2. Download `bgt-f27500-modernized-v11.5.zip` from
+2. Download `bgt-f27500-modernized-v11.6.zip` from
    [Releases](https://github.com/gustavosjp/Fokker-F27-MK500---Modernized/releases/latest) and extract the
    `bgt-f27500-modernized` folder into the MSFS 2024 Community folder. The zip's `Add-Liveries.ps1` stays outside Community.
 3. In the simulator, pick "Fokker F27500 Modernized it80" in the aircraft list.
@@ -348,6 +358,8 @@ update of his package undoes the change. This repository neither changes nor dis
 
 ### Credits and licenses
 
+- **Roboto (`Data\Roboto-Regular.ttf`):** Google, Apache 2.0. Only the systems WASM reads this font, to write the cockpit booklets; no page of the simulator
+  uses it, so it does not touch the MSFS fonts.
 - **Fokker F27-500 v2:** bgaurant. Not included, and required.
 - **WT21 avionics, MSFS SDK and wtlinesdk:** Working Title / Microsoft
   ([msfs-avionics-mirror](https://github.com/microsoft/msfs-avionics-mirror)). MIT license with the addendum "only for usage in

@@ -6,6 +6,7 @@ import { Lang, LANGUAGES } from './i18n';
 import { Autothrottle } from './autothrottle';
 import { PullTug } from './pull';
 import { YawDamper } from './yawdamper';
+import { BookletState } from './bookletstate';
 import { SimBridge } from './sim';
 import { DEFAULT_PAX_KG, Loader, LoadMode, MAX_CARGO_KG, SEATS } from './loading';
 import { Ofp, OfpError, SendResult } from './simbrief';
@@ -148,6 +149,8 @@ export class TabletModel {
   public readonly sendError = Subject.create('');
   /** v11.6: send the SID / STAR as procedures (their altitude constraints reach the FMS) or as plain points. */
   public readonly useProcs = Subject.create(true);
+  /** v11.5.1 (a user: "maybe a night mode for the OFP"): the OFP viewer in dark colours. */
+  public readonly ofpNight = Subject.create(false);
 
   /** Whose METAR Home shows: the pilot's pick once an OFP is loaded, else the nearest airport on the ground and the destination in flight. */
   public readonly wxSource = MappedSubject.create(([pick, ground, ofp]): WxSource => {
@@ -181,6 +184,8 @@ export class TabletModel {
   /** v10.6: the Systems app's readings, refreshed only while it is open (systemsShown). */
   public readonly systems: Subject<SystemsReadings>;
   public systemsShown = false;
+  /** v11.6: the author's booklets, shared with the Booklet app (their settings and the fuel calculator follow both ways). */
+  public readonly booklet: BookletState;
 
   /**
    * @param sim Where the values come from and the actions go.
@@ -199,6 +204,8 @@ export class TabletModel {
     this.autothrottle.armed.sub((a) => sim.save('F27TAB_at', a ? 'on' : 'off'));
     this.useProcs.set(sim.load('F27TAB_procs') !== 'off');
     this.useProcs.sub((on) => sim.save('F27TAB_procs', on ? 'on' : 'off'));
+    this.ofpNight.set(sim.load('F27TAB_ofpnight') === 'on');
+    this.ofpNight.sub((on) => sim.save('F27TAB_ofpnight', on ? 'on' : 'off'));
     this.checklist = new ChecklistState(sim);
     this.charts = new ChartsModel(charts);
     this.systems = Subject.create(readSystems(sim));
@@ -216,6 +223,8 @@ export class TabletModel {
     if (units === 'kg' || units === 'lb') {
       this.units.set(units);
     }
+    // after the saved unit: the booklets take the tablet's unit when the flight starts
+    this.booklet = new BookletState(sim, this.units);
     const lang = sim.load('F27TAB_lang');
     if (LANGUAGES.some((l) => l.id === lang)) {
       this.lang.set(lang as Lang);
@@ -313,6 +322,7 @@ export class TabletModel {
     this.gearPins.set(s.get('L:F27WT21_GearPins', 'bool') !== 0);
     this.groundRules();
     this.checklist.update();
+    this.booklet.update();
     if (this.systemsShown) {
       this.systems.set(readSystems(s));
     }
